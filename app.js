@@ -13,9 +13,8 @@ const fs = require("fs");
 const app = express();
 
 const allowedOrigins = [
-  "https://6849-182-253-124-127.ngrok-free.app",
-  "https://4151-103-233-100-232.ngrok-free.app",
   "http://localhost:3000",
+  "https://api-bewise.vercel.app",
 ];
 
 app.use(
