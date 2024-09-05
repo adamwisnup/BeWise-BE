@@ -7,8 +7,8 @@ const routes = require("./routes/routes");
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yaml");
 const fs = require("fs");
-// const file = fs.readFileSync("./docs/api-doc.yaml", "utf-8");
-// const swaggerDocument = YAML.parse(file);
+const file = fs.readFileSync("./docs/api-doc.yaml", "utf-8");
+const swaggerDocument = YAML.parse(file);
 
 const app = express();
 
@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use("/v1/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use("/v1/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use("/api/v1", routes);
 
 module.exports = app;
