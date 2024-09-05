@@ -7,9 +7,8 @@ const routes = require("./routes/routes");
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yaml");
 const fs = require("fs");
-const file = fs.readFileSync("./docs/api-doc.yaml", "utf-8");
-const swaggerDocument = YAML.parse(file);
-require("dotenv").config();
+// const file = fs.readFileSync("./docs/api-doc.yaml", "utf-8");
+// const swaggerDocument = YAML.parse(file);
 
 const app = express();
 

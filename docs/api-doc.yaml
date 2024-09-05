@@ -1,0 +1,453 @@
+openapi: 3.0.1
+info:
+  title: BeWise API
+  description: api BeWise khusus
+  version: 1.0.0
+  contact:
+    email: wisnuadam21@gmail.com
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+  - url: https://6849-182-253-124-127.ngrok-free.app/api/v1
+    description: Ngrok tunnel for external access
+paths:
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: Register User
+      description: Register New User.
+      requestBody:
+        $ref: "#/components/requestBodies/Register"
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Pengguna berhasil terdaftar
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          email:
+                            type: string
+                            example: test2@example.com
+                          name:
+                            type: string
+                            example: Test2
+                          gender:
+                            type: string
+                            nullable: true
+                            example: null
+                          avatar_link:
+                            type: string
+                            nullable: true
+                            example: null
+        400:
+          description: duplicated email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Email sudah terdaftar
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Login User
+      description: Login User.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: bewise@gmail.com
+                password:
+                  type: string
+                  example: BeWise123
+      responses:
+        200:
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login berhasil
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          email:
+                            type: string
+                            example: test1@example.com
+                          name:
+                            type: string
+                            example: Test
+                          gender:
+                            type: string
+                            example: null
+                          avatar_link:
+                            type: string
+                            example: null
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJlbWFpbCI6InRlc3QxQGV4YW1wbGUuY29tIiwiaWF0IjoxNzIzOTE0NTMwLCJleHAiOjE3MjQ1MTkzMzB9.WVVyWg4oDtUyR7JebX51I2AoJzkLv75mcaYuGQPCKX0
+        400:
+          description: Email atau password salah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Email atau password salah
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+  /whoami:
+    get:
+      tags:
+        - Auth
+      summary: Who Am I
+      description: Get User Profile.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OK
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: BeWise
+                      email:
+                        type: string
+                        example: bewise@gmail.com
+                      gender:
+                        type: string
+                        example: Pria
+                      avatar_link:
+                        type: string
+                        example: https://ik.imagekit.io/awp2705/BeWise/1723908513210_f4N1AAHba.png
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+  /profile:
+    patch:
+      tags:
+        - User
+      summary: Update Profile
+      description: Update Profile User.
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: BeWise
+                email:
+                  type: string
+                  example: bewise@gmail.com
+                gender:
+                  type: string
+                  example: Pria
+      responses:
+        "200":
+          description: Profil berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Profil berhasil diperbarui
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 16
+                      email:
+                        type: string
+                        example: test1@example.com
+                      name:
+                        type: string
+                        example: Test Lagi
+                      gender:
+                        type: string
+                        example: Pria
+                      avatar_link:
+                        type: string
+                        example: https://ik.imagekit.io/awp2705/BeWise/1723908513210_f4N1AAHba.png
+                required:
+                  - status
+                  - message
+                  - data
+        "400":
+          description: Email sudah terdaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Email sudah terdaftar
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+  /avatar-profile:
+    patch:
+      tags:
+        - User
+      summary: Update Avatar Profile
+      description: Update Avatar Profile User.
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Avatar berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Avatar berhasil diperbarui
+                  data:
+                    type: object
+                    properties:
+                      avatar_link:
+                        type: string
+                        example: https://ik.imagekit.io/awp2705/BeWise/1723908513210_f4N1AAHba.png
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Unauthorized
+                  data:
+                    type: object
+                    nullable: true
+                    example: null
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  #   get:
+  #     summary: get all users
+  #     parameters:
+  #       - schema:
+  #           type: string
+  #         name: search
+  #         in: query
+  #     responses:
+  #       200:
+  #         description: success
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: OK
+  #                 data:
+  #                   type: array
+  #                   items:
+  #                     allOf:
+  #                       - $ref: "#/components/schemas/User"
+  #                       - type: object
+  #                         properties:
+  #                           password:
+  #                             type: string
+  #                             example: agung123
+  # /users/{user_id}:
+  #   parameters:
+  #     - schema:
+  #         type: integer
+  #       name: user_id
+  #       in: path
+  #       required: true
+  #   get:
+  #     summary: get detail user
+  #     responses:
+  #       200:
+  #         description: success
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: OK
+  #                 data:
+  #                   type: object
+  #                   properties:
+  #                     allOf:
+  #                       - $ref: "#/components/schemas/User"
+  #                       - type: object
+  #                         properties:
+  #                           password:
+  #                             type: string
+  #                             example: agung123
+
+  # schemas:
+  #   User:
+  #     title: User
+  #     type: object
+  #     properties:
+  #       id:
+  #         type: integer
+  #         example: 11
+  #       name:
+  #         type: string
+  #         example: agung
+  #       email:
+  #         type: string
+  #         example: agung@mail.com
+  requestBodies:
+    Register:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: BeWise
+              email:
+                type: string
+                example: bewise@gmail.com
+              password:
+                type: string
+                example: BeWise123
