@@ -8,8 +8,8 @@ info:
 servers:
   - url: http://localhost:3000/api/v1
     description: Local development server
-  - url: https://6849-182-253-124-127.ngrok-free.app/api/v1
-    description: Ngrok tunnel for external access
+  - url: https://api-bewise.vercel.app/api/v1
+    description: Production server
 paths:
   /register:
     post:

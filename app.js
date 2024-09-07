@@ -34,7 +34,30 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use("/v1/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+// Swagger Documentation Setup
+try {
+  const filePath = path.join(__dirname, "docs", "api-doc.yaml");
+  const file = fs.readFileSync(filePath, "utf-8");
+  const swaggerDocument = YAML.parse(file);
+
+  app.use("/v1/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+} catch (error) {
+  console.error("Error reading swagger file:", error);
+}
+
+// Routes
 app.use("/api/v1", routes);
+// app.use("/v1/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+// Route to check if docs folder is accessible
+app.get("/check-docs", (req, res) => {
+  const docsPath = path.join(__dirname, "docs");
+  fs.readdir(docsPath, (err, files) => {
+    if (err) {
+      return res.status(500).send("Could not list directory.");
+    }
+    res.json(files);
+  });
+});
 
 module.exports = app;
