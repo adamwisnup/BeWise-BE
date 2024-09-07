@@ -11,6 +11,5 @@
       "src": "/(.*)",
       "dest": "/index.js"
     }
-  ],
-  "files": ["docs/api-doc.yaml"]
+  ]
 }
