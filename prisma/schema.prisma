@@ -14,14 +14,83 @@ datasource db {
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  email       String  @unique
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
   name        String
   password    String
   gender      Gender?
   avatar_link String?
+  History     History[]
 
   @@map("users")
+}
+
+model Information {
+  id      Int    @id @default(autoincrement())
+  title   String
+  content String
+  image   String
+
+  @@map("informations")
+}
+
+model News {
+  id      Int    @id @default(autoincrement())
+  title   String
+  content String
+  author  String
+  image   String
+
+  @@map("news")
+}
+
+model CategoryProduct {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Product Product[]
+
+  @@map("category_products")
+}
+
+model NutritionFact {
+  id              Int       @id @default(autoincrement())
+  energy          Float
+  saturated_fat   Float
+  sugar           Float
+  sodium          Float
+  protein         Float
+  fiber           Float
+  fruit_vegetable Float
+  Product         Product[]
+
+  @@map("nutrition_facts")
+}
+
+model Product {
+  id                  Int             @id @default(autoincrement())
+  name                String
+  brand               String
+  label               String
+  photo               String
+  category_product_id Int
+  nutrition_fact_id   Int             @unique
+  barcode             String
+  price               Int
+  categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
+  nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
+  History             History[]
+
+  @@map("products")
+}
+
+model History {
+  id         Int     @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  user       User    @relation(fields: [user_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+
+  @@map("histories")
 }
 
 enum Gender {
