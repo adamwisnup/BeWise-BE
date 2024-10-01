@@ -14,13 +14,14 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  email       String    @unique
-  name        String
-  password    String
-  gender      Gender?
-  avatar_link String?
-  History     History[]
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  name         String
+  password     String
+  gender       Gender?
+  avatar_link  String?
+  History      History[]
+  Notification Notification[]
 
   @@map("users")
 }
@@ -91,6 +92,16 @@ model History {
   product    Product @relation(fields: [product_id], references: [id])
 
   @@map("histories")
+}
+
+model Notification {
+  id      Int    @id @default(autoincrement())
+  user_id Int
+  title   String
+  message String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  @@map("notifications")
 }
 
 enum Gender {
