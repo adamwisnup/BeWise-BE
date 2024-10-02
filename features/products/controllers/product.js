@@ -3,12 +3,19 @@ const ProductService = require("../services/product");
 class ProductController {
   async getAllProducts(req, res) {
     try {
-      const { products } = await ProductService.findAllProducts();
+      const { page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+
+      const { products } = await ProductService.findAllProducts(
+        pageNumber,
+        limitNumber
+      );
 
       return res.json({
         success: true,
         message: "Data produk berhasil dimuat",
-        data: { products },
+        data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
@@ -20,10 +27,15 @@ class ProductController {
 
   async getProductByCategory(req, res) {
     try {
+      const { page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
       const { category } = req.params;
       const categoryProductId = parseInt(category);
       const { products } = await ProductService.findProductByCategory(
-        categoryProductId
+        categoryProductId,
+        pageNumber,
+        limitNumber
       );
 
       if (!products || products.length === 0) {
@@ -36,7 +48,7 @@ class ProductController {
       return res.json({
         success: true,
         message: "Data produk berhasil dimuat",
-        data: { products },
+        data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({

@@ -9,12 +9,19 @@ class ProductRepository {
   //     });
   //   }
 
-  async findAllProducts() {
-    return await prisma.product.findMany();
+  async findAllProducts(page, limit) {
+    const skip = (page - 1) * limit;
+    return await prisma.product.findMany({
+      skip,
+      take: limit,
+    });
   }
 
-  async findProductByCategory(categoryProductId) {
+  async findProductByCategory(categoryProductId, page, limit) {
+    const skip = (page - 1) * limit;
     return await prisma.product.findMany({
+      skip,
+      take: limit,
       where: {
         category_product_id: categoryProductId,
       },

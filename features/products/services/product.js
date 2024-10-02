@@ -15,15 +15,17 @@ class ProductService {
   //     return { product };
   //   }
 
-  async findAllProducts() {
-    const products = await ProductRepository.findAllProducts();
+  async findAllProducts(page = 1, limit = 10) {
+    const products = await ProductRepository.findAllProducts(page, limit);
 
     return { products };
   }
 
-  async findProductByCategory(categoryProductId) {
+  async findProductByCategory(categoryProductId, page = 1, limit = 10) {
     const products = await ProductRepository.findProductByCategory(
-      categoryProductId
+      categoryProductId,
+      page,
+      limit
     );
 
     if (!products) {
