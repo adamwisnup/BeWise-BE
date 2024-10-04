@@ -4,6 +4,7 @@ const restrict = require("../middlewares/restrict");
 const { image } = require("../libs/multer");
 const UserController = require("../features/users/controllers/user");
 const ProductController = require("../features/products/controllers/product");
+const InformationController = require("../features/informations/controllers/information");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -31,5 +32,30 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
+
+// INFORMATION
+router.post(
+  "/informations",
+  restrict,
+  image.single("image"),
+  InformationController.createInformation
+);
+router.get("/informations", restrict, InformationController.getAllInformations);
+router.get(
+  "/informations/:id",
+  restrict,
+  InformationController.getInformationById
+);
+router.patch(
+  "/informations/:id",
+  restrict,
+  image.single("image"),
+  InformationController.updateInformation
+);
+router.delete(
+  "/informations/:id",
+  restrict,
+  InformationController.deleteInformation
+);
 
 module.exports = router;
