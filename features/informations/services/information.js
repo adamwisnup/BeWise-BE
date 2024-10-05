@@ -53,7 +53,7 @@ class InformationService {
       throw error;
     }
 
-    return { information };
+    return information;
   }
 
   async updateInformation(informationId, data) {

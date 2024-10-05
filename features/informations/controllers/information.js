@@ -81,7 +81,7 @@ class InformationController {
     try {
       const { id } = req.params;
       const informationId = parseInt(id, 10);
-      const { information } = await InformationService.findInformationById(
+      const information = await InformationService.findInformationById(
         informationId
       );
 
