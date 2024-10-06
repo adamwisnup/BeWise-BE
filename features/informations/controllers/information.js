@@ -42,7 +42,6 @@ class InformationController {
         data: { information },
       });
     } catch (error) {
-      console.error("Error saat membuat informasi:", error);
       return res.status(500).json({
         status: false,
         message: error.message || "Terjadi kesalahan pada server",
