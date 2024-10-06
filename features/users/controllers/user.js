@@ -147,7 +147,7 @@ class UserController {
         });
       }
 
-      console.log("User dari req.user:", req.user);
+      // console.log("User dari req.user:", req.user);
 
       if (!req.user || !req.user.userId) {
         return res.status(400).json({
@@ -167,8 +167,9 @@ class UserController {
         },
       });
     } catch (error) {
-      res.status(500).json({
-        status: false,
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
+        success: false,
         message: error.message,
         data: null,
       });

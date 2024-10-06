@@ -21,6 +21,7 @@ const generateFileFilter = (mimetypes) => {
       callback(null, true);
     } else {
       let err = new Error(`Only ${mimetypes} are allowed to upload!`);
+      err.statusCode = 400;
       callback(err, false);
     }
   };
