@@ -5,6 +5,7 @@ const { image } = require("../libs/multer");
 const UserController = require("../features/users/controllers/user");
 const ProductController = require("../features/products/controllers/product");
 const InformationController = require("../features/informations/controllers/information");
+const NewsController = require("../features/news/controllers/news");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -57,5 +58,22 @@ router.delete(
   restrict,
   InformationController.deleteInformation
 );
+
+// NEWS
+router.post(
+  "/news",
+  restrict,
+  image.single("image"),
+  NewsController.createNews
+);
+router.get("/news", restrict, NewsController.getAllNews);
+router.get("/news/:id", restrict, NewsController.getNewsById);
+router.patch(
+  "/news/:id",
+  restrict,
+  image.single("image"),
+  NewsController.updateNews
+);
+router.delete("/news/:id", restrict, NewsController.deleteNews);
 
 module.exports = router;
