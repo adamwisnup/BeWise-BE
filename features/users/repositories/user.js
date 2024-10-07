@@ -4,9 +4,7 @@ class UserRepository {
   async createUser(data) {
     return await prisma.user.create({
       data: {
-        title: data.title,
-        content: data.content,
-        image: data.image,
+        ...data,
       },
     });
   }
