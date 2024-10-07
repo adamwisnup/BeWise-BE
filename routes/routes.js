@@ -6,6 +6,7 @@ const UserController = require("../features/users/controllers/user");
 const ProductController = require("../features/products/controllers/product");
 const InformationController = require("../features/informations/controllers/information");
 const NewsController = require("../features/news/controllers/news");
+const HistoryController = require("../features/histories/controllers/history");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -75,5 +76,10 @@ router.patch(
   NewsController.updateNews
 );
 router.delete("/news/:id", restrict, NewsController.deleteNews);
+
+// HISTORY
+router.get("/histories", restrict, HistoryController.getAllHistories);
+router.get("/histories/:id", restrict, HistoryController.getHistoryById);
+router.delete("/histories/:id", restrict, HistoryController.deleteHistory);
 
 module.exports = router;
