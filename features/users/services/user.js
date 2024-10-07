@@ -128,7 +128,7 @@ class UserService {
       const response = await imagekit.upload({
         fileName: Date.now() + path.extname(avatar.originalname),
         file: fileBase64,
-        folder: "BeWise",
+        folder: "BeWise/User",
       });
 
       const fileUrl = response.url;

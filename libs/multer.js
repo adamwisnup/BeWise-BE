@@ -21,6 +21,7 @@ const generateFileFilter = (mimetypes) => {
       callback(null, true);
     } else {
       let err = new Error(`Only ${mimetypes} are allowed to upload!`);
+      err.statusCode = 400;
       callback(err, false);
     }
   };
@@ -33,7 +34,7 @@ module.exports = {
       next(err);
     },
     limits: {
-      fileSize: 1024 * 1024 * 2,
+      fileSize: 1024 * 1024 * 10,
     },
   }),
 };
