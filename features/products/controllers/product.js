@@ -93,6 +93,37 @@ class ProductController {
       });
     }
   }
+
+  async searchProducts(req, res) {
+    try {
+      const { keyword, page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+      const { products } = await ProductService.searchProducts(
+        keyword,
+        pageNumber,
+        limitNumber
+      );
+
+      if (!products || products.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Produk tidak ditemukan",
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Data produk berhasil dimuat",
+        data: { products, page: pageNumber, limit: limitNumber },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 }
 
 module.exports = new ProductController();

@@ -70,6 +70,16 @@ class ProductService {
 
     return { message: "Produk berhasil dihapus" };
   }
+
+  async searchProducts(keyword, page = 1, limit = 10) {
+    const products = await ProductRepository.searchProducts(
+      keyword,
+      page,
+      limit
+    );
+
+    return products;
+  }
 }
 
 module.exports = new ProductService();

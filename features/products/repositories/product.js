@@ -54,6 +54,20 @@ class ProductRepository {
       },
     });
   }
+
+  async searchProducts(keyword, page, limit) {
+    const skip = (page - 1) * limit;
+    return await prisma.product.findMany({
+      skip,
+      take: limit,
+      where: {
+        name: {
+          contains: keyword,
+          mode: "insensitive",
+        },
+      },
+    });
+  }
 }
 
 module.exports = new ProductRepository();

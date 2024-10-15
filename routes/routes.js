@@ -34,6 +34,7 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
+router.get("/prpducts/search", restrict, ProductController.searchProducts);
 
 // INFORMATION
 router.post(
