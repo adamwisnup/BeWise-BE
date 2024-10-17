@@ -33,8 +33,8 @@ router.get(
   restrict,
   ProductController.getProductByCategory
 );
+router.get("/products/search", restrict, ProductController.searchProducts);
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
-router.get("/prpducts/search", restrict, ProductController.searchProducts);
 
 // INFORMATION
 router.post(

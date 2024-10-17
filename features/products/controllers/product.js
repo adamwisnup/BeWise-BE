@@ -13,14 +13,15 @@ class ProductController {
       );
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -40,20 +41,22 @@ class ProductController {
 
       if (!products || products.length === 0) {
         return res.status(404).json({
-          success: false,
+          status: false,
           message: "Produk tidak ditemukan",
+          data: null,
         });
       }
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -65,14 +68,15 @@ class ProductController {
       const { product } = await ProductService.findProductById(productId);
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { product },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -83,13 +87,14 @@ class ProductController {
       const { message } = await ProductService.deleteProduct(id);
 
       return res.json({
-        success: true,
+        status: true,
         message,
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -107,20 +112,22 @@ class ProductController {
 
       if (!products || products.length === 0) {
         return res.status(404).json({
-          success: false,
+          status: false,
           message: "Produk tidak ditemukan",
+          data: null,
         });
       }
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
