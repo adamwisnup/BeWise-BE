@@ -76,6 +76,10 @@ class ProductRepository {
       where: {
         barcode: barcode,
       },
+      include: {
+        nutritionFact: true,
+        categoryProduct: true,
+      },
     });
 
     return product;

@@ -4,8 +4,8 @@ class HistoryRepository {
   async createHistory(userId, productId) {
     const history = await prisma.history.create({
       data: {
-        userId: userId,
-        productId: productId,
+        user_id: userId,
+        product_id: productId,
       },
     });
 
