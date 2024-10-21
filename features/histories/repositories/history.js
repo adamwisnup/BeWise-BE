@@ -1,6 +1,17 @@
 const prisma = require("../../../configs/config");
 
 class HistoryRepository {
+  async createHistory(userId, productId) {
+    const history = await prisma.history.create({
+      data: {
+        userId: userId,
+        productId: productId,
+      },
+    });
+
+    return history;
+  }
+
   async findAllHistories(data) {
     return await prisma.history.findMany();
   }

@@ -30,7 +30,9 @@ class ProductRepository {
 
   async findProductById(productId) {
     return await prisma.product.findUnique({
-      where: { id: productId },
+      where: {
+        id: parseInt(productId, 10),
+      },
       include: {
         categoryProduct: true,
         nutritionFact: true,
@@ -67,6 +69,16 @@ class ProductRepository {
         },
       },
     });
+  }
+
+  async findProductByBarcode(barcode) {
+    const product = await prisma.product.findFirst({
+      where: {
+        barcode: barcode,
+      },
+    });
+
+    return product;
   }
 }
 

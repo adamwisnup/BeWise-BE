@@ -68,9 +68,8 @@ class UserService {
     try {
       const users = await UserRepository.findAllUsers();
 
-      // Hapus password dari setiap user
       const sanitizedUsers = users.map((user) => {
-        const { password, ...rest } = user; // Hapus password dan ambil field lainnya
+        const { password, ...rest } = user;
         return rest;
       });
 
@@ -95,7 +94,6 @@ class UserService {
 
       return user;
     } catch (error) {
-      // console.error("Kesalahan pada getUserFromToken:", error);
       throw new Error("Token tidak valid atau sudah kadaluarsa");
     }
   }
