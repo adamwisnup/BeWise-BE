@@ -1,4 +1,7 @@
 const UserService = require("../services/user");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET_KEY } = process.env;
+const nodemailer = require("../../../libs/nodemailer");
 class UserController {
   async register(req, res) {
     try {
@@ -217,6 +220,141 @@ class UserController {
       });
     } catch (error) {
       res.status(500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async forgotPassword(req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          status: false,
+          message: "Email wajib diisi",
+          data: null,
+        });
+      }
+
+      const user = await UserService.findUserByEmail(email);
+
+      if (!user) {
+        return res.status(404).json({
+          status: false,
+          message: "Email tidak terdaftar",
+          data: null,
+        });
+      }
+
+      const token = jwt.sign({ email: user.email }, JWT_SECRET_KEY, {
+        expiresIn: "1h",
+      });
+
+      const url = `${req.protocol}://${req.get(
+        "host"
+      )}/api/v1/reset-password?token=${token}`;
+
+      const html = await nodemailer.getHTML("forgot-password.ejs", {
+        name: user.name,
+        url: url,
+      });
+
+      await nodemailer.sendMail(email, "Reset Password", html);
+
+      res.status(200).json({
+        status: true,
+        message: "Email reset password berhasil dikirim",
+        data: null,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async resetPassword(req, res) {
+    try {
+      const { token } = req.query;
+      const { password, confirmPassword } = req.body;
+
+      if (!password || !confirmPassword) {
+        return res.status(400).json({
+          status: false,
+          message: "Password dan konfirmasi password wajib diisi",
+          data: null,
+        });
+      }
+
+      const decoded = jwt.verify(token, JWT_SECRET_KEY);
+
+      if (decoded) {
+        const updatedUser = await UserService.resetPassword(
+          decoded.email,
+          token,
+          password,
+          confirmPassword
+        );
+
+        res.status(200).json({
+          status: true,
+          message: "Password berhasil direset",
+          data: updatedUser,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async resetPasswordPage(req, res) {
+    try {
+      let { token } = req.query;
+      res.render("reset-password.ejs", {
+        token,
+        layout: false,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async resetPasswordTestPage(req, res) {
+    try {
+      // let { token } = req.query;
+      res.render("reset-password-test.ejs", {
+        // token,
+        layout: false,
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async forgotEmailPage(req, res) {
+    try {
+      res.render("forgot-password-test.ejs", {
+        layout: false,
+      });
+    } catch (error) {
+      res.status(400).json({
         status: false,
         message: error.message,
         data: null,

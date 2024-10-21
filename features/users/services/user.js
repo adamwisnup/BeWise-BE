@@ -167,6 +167,46 @@ class UserService {
 
     return user;
   }
+
+  findUserByEmail(email) {
+    const user = UserRepository.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error("Email tidak ditemukan");
+    }
+
+    return user;
+  }
+
+  async resetPassword(email, token, password, confirmPassword) {
+    const user = UserRepository.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error("Email tidak ditemukan");
+    }
+
+    if (!token) {
+      throw new Error("Token reset password tidak valid");
+    }
+
+    if (password !== confirmPassword) {
+      throw new Error("Password dan konfirmasi password tidak sama");
+    }
+
+    if (!password || !confirmPassword) {
+      throw new Error("Password dan konfirmasi password wajib diisi");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = UserRepository.updateUserByEmail(email, {
+      password: hashedPassword,
+    });
+
+    delete updatedUser.password;
+
+    return updatedUser;
+  }
 }
 
 module.exports = new UserService();

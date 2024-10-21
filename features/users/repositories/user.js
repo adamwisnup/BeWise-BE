@@ -44,6 +44,15 @@ class UserRepository {
       data: updateData,
     });
   }
+
+  async updateUserByEmail(email, updateData) {
+    return await prisma.user.update({
+      where: {
+        email,
+      },
+      data: updateData,
+    });
+  }
 }
 
 module.exports = new UserRepository();

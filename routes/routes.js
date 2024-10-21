@@ -15,6 +15,11 @@ router.get("/users", UserController.getAllUser);
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 router.get("/whoami", restrict, UserController.whoami);
+router.get("/forgot-password", UserController.forgotEmailPage);
+router.post("/forgot-password", UserController.forgotPassword);
+router.get("/reset-password", UserController.resetPasswordPage);
+router.post("/reset-password", UserController.resetPassword);
+// router.get("/reset-password-test", UserController.resetPasswordTestPage);
 
 // USER PROFILE
 router.patch(
