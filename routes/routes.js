@@ -15,6 +15,11 @@ router.get("/users", UserController.getAllUser);
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
 router.get("/whoami", restrict, UserController.whoami);
+router.get("/forgot-password", UserController.forgotEmailPage);
+router.post("/forgot-password", UserController.forgotPassword);
+router.get("/reset-password", UserController.resetPasswordPage);
+router.post("/reset-password", UserController.resetPassword);
+// router.get("/reset-password-test", UserController.resetPasswordTestPage);
 
 // USER PROFILE
 router.patch(
@@ -27,6 +32,7 @@ router.patch("/profile", restrict, UserController.updateProfile);
 
 // PRODUCT
 router.get("/products", restrict, ProductController.getAllProducts);
+router.get("/products/search", restrict, ProductController.searchProducts);
 router.get("/products/:id", restrict, ProductController.getProductById);
 router.get(
   "/products/category/:category",
@@ -34,6 +40,7 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
+router.post("/products/scan", restrict, ProductController.scanProduct);
 
 // INFORMATION
 router.post(

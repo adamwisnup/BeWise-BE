@@ -1,4 +1,5 @@
 const ProductRepository = require("../repositories/product");
+const HistoryRepository = require("../../histories/repositories/history");
 
 class ProductService {
   //   async createProduct(data) {
@@ -69,6 +70,36 @@ class ProductService {
     await ProductRepository.deleteProduct(productId);
 
     return { message: "Produk berhasil dihapus" };
+  }
+
+  async searchProducts(name, page = 1, limit = 10) {
+    if (!name) {
+      throw new Error("Nama produk tidak boleh kosong.");
+    }
+
+    const products = await ProductRepository.searchProducts(name, page, limit);
+
+    if (products.length === 0) {
+      throw new Error("Produk tidak ditemukan.");
+    }
+
+    return products;
+  }
+
+  async scanProduct(userId, barcode) {
+    if (!barcode) {
+      throw new Error("Barcode tidak boleh kosong.");
+    }
+
+    const product = await ProductRepository.findProductByBarcode(barcode);
+
+    if (!product) {
+      throw new Error("Produk tidak ditemukan.");
+    }
+
+    await HistoryRepository.createHistory(userId, product.id);
+
+    return product;
   }
 }
 

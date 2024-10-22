@@ -13,14 +13,15 @@ class ProductController {
       );
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -40,20 +41,22 @@ class ProductController {
 
       if (!products || products.length === 0) {
         return res.status(404).json({
-          success: false,
+          status: false,
           message: "Produk tidak ditemukan",
+          data: null,
         });
       }
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -65,14 +68,15 @@ class ProductController {
       const { product } = await ProductService.findProductById(productId);
 
       return res.json({
-        success: true,
+        status: true,
         message: "Data produk berhasil dimuat",
         data: { product },
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
       });
     }
   }
@@ -83,13 +87,84 @@ class ProductController {
       const { message } = await ProductService.deleteProduct(id);
 
       return res.json({
-        success: true,
+        status: true,
         message,
       });
     } catch (error) {
       return res.status(500).json({
-        success: false,
+        status: false,
         message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async searchProducts(req, res) {
+    try {
+      const { name, page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+
+      if (!name) {
+        return res.status(400).json({
+          status: false,
+          message: "Nama produk tidak boleh kosong.",
+          data: null,
+        });
+      }
+
+      const products = await ProductService.searchProducts(
+        name,
+        pageNumber,
+        limitNumber
+      );
+
+      const product_quantity = products.length;
+
+      return res.json({
+        status: true,
+        message: "Data produk berhasil dimuat.",
+        data: {
+          products,
+          product_quantity,
+          page: pageNumber,
+          limit: limitNumber,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async scanProduct(req, res) {
+    try {
+      const { barcode } = req.body;
+      const { userId } = req.user;
+
+      if (!barcode) {
+        return res.status(400).json({
+          status: false,
+          message: "Barcode tidak boleh kosong.",
+          data: null,
+        });
+      }
+
+      const product = await ProductService.scanProduct(userId, barcode);
+
+      return res.json({
+        status: true,
+        message: "Data produk berhasil dimuat",
+        data: { product },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: error.message,
+        data: null,
       });
     }
   }

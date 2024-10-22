@@ -68,9 +68,8 @@ class UserService {
     try {
       const users = await UserRepository.findAllUsers();
 
-      // Hapus password dari setiap user
       const sanitizedUsers = users.map((user) => {
-        const { password, ...rest } = user; // Hapus password dan ambil field lainnya
+        const { password, ...rest } = user;
         return rest;
       });
 
@@ -95,7 +94,6 @@ class UserService {
 
       return user;
     } catch (error) {
-      // console.error("Kesalahan pada getUserFromToken:", error);
       throw new Error("Token tidak valid atau sudah kadaluarsa");
     }
   }
@@ -168,6 +166,46 @@ class UserService {
     delete user.password;
 
     return user;
+  }
+
+  findUserByEmail(email) {
+    const user = UserRepository.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error("Email tidak ditemukan");
+    }
+
+    return user;
+  }
+
+  async resetPassword(email, token, password, confirmPassword) {
+    const user = UserRepository.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error("Email tidak ditemukan");
+    }
+
+    if (!token) {
+      throw new Error("Token reset password tidak valid");
+    }
+
+    if (password !== confirmPassword) {
+      throw new Error("Password dan konfirmasi password tidak sama");
+    }
+
+    if (!password || !confirmPassword) {
+      throw new Error("Password dan konfirmasi password wajib diisi");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = UserRepository.updateUserByEmail(email, {
+      password: hashedPassword,
+    });
+
+    delete updatedUser.password;
+
+    return updatedUser;
   }
 }
 
