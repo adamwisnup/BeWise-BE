@@ -72,15 +72,18 @@ class ProductService {
     return { message: "Produk berhasil dihapus" };
   }
 
-  // seach product by name
-  async searchProducts(keyword, page = 1, limit = 10) {
-    const products = await ProductRepository.searchProducts(
-      keyword,
-      page,
-      limit
-    );
+  async searchProducts(name, page = 1, limit = 10) {
+    if (!name) {
+      throw new Error("Nama produk tidak boleh kosong.");
+    }
 
-    return { products };
+    const products = await ProductRepository.searchProducts(name, page, limit);
+
+    if (products.length === 0) {
+      throw new Error("Produk tidak ditemukan.");
+    }
+
+    return products;
   }
 
   async scanProduct(userId, barcode) {

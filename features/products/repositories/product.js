@@ -57,16 +57,21 @@ class ProductRepository {
     });
   }
 
-  async searchProducts(keyword, page, limit) {
+  async searchProducts(name, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
+
     return await prisma.product.findMany({
       skip,
       take: limit,
       where: {
         name: {
-          contains: keyword,
+          contains: name,
           mode: "insensitive",
         },
+      },
+      include: {
+        nutritionFact: true,
+        categoryProduct: true,
       },
     });
   }

@@ -32,6 +32,7 @@ router.patch("/profile", restrict, UserController.updateProfile);
 
 // PRODUCT
 router.get("/products", restrict, ProductController.getAllProducts);
+router.get("/products/search", restrict, ProductController.searchProducts);
 router.get("/products/:id", restrict, ProductController.getProductById);
 router.get(
   "/products/category/:category",
@@ -39,7 +40,6 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
-router.get("/products/search", restrict, ProductController.searchProducts);
 router.post("/products/scan", restrict, ProductController.scanProduct);
 
 // INFORMATION

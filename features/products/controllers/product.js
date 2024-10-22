@@ -101,27 +101,35 @@ class ProductController {
 
   async searchProducts(req, res) {
     try {
-      const { page = 1, limit = 10, keyword } = req.query;
+      const { name, page = 1, limit = 10 } = req.query;
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-      const { products } = await ProductService.searchProducts(
-        keyword,
-        pageNumber,
-        limitNumber
-      );
 
-      if (!products || products.length === 0) {
-        return res.status(404).json({
+      if (!name) {
+        return res.status(400).json({
           status: false,
-          message: "Produk tidak ditemukan",
+          message: "Nama produk tidak boleh kosong.",
           data: null,
         });
       }
 
+      const products = await ProductService.searchProducts(
+        name,
+        pageNumber,
+        limitNumber
+      );
+
+      const product_quantity = products.length;
+
       return res.json({
         status: true,
-        message: "Data produk berhasil dimuat",
-        data: { products, page: pageNumber, limit: limitNumber },
+        message: "Data produk berhasil dimuat.",
+        data: {
+          products,
+          product_quantity,
+          page: pageNumber,
+          limit: limitNumber,
+        },
       });
     } catch (error) {
       return res.status(500).json({
