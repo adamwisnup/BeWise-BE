@@ -36,7 +36,7 @@ class ProductRepository {
       include: {
         categoryProduct: true,
         nutritionFact: true,
-        label: true,
+        Label: true,
       },
     });
   }
@@ -73,7 +73,7 @@ class ProductRepository {
       include: {
         nutritionFact: true,
         categoryProduct: true,
-        lavael: true,
+        Label: true,
       },
     });
   }
