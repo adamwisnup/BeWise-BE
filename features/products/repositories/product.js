@@ -14,6 +14,9 @@ class ProductRepository {
     return await prisma.product.findMany({
       skip,
       take: limit,
+      include: {
+        label: true,
+      },
     });
   }
 
@@ -24,6 +27,9 @@ class ProductRepository {
       take: limit,
       where: {
         category_product_id: categoryProductId,
+      },
+      include: {
+        label: true,
       },
     });
   }
@@ -36,7 +42,7 @@ class ProductRepository {
       include: {
         categoryProduct: true,
         nutritionFact: true,
-        Label: true,
+        label: true,
       },
     });
   }
@@ -71,9 +77,7 @@ class ProductRepository {
         },
       },
       include: {
-        nutritionFact: true,
-        categoryProduct: true,
-        Label: true,
+        label: true,
       },
     });
   }
@@ -86,7 +90,7 @@ class ProductRepository {
       include: {
         nutritionFact: true,
         categoryProduct: true,
-        Label: true,
+        label: true,
       },
     });
 

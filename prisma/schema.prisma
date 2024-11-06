@@ -79,7 +79,7 @@ model Product {
   label_id            Int
   categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
   nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
-  Label               Label           @relation(fields: [label_id], references: [id])
+  label               Label           @relation(fields: [label_id], references: [id])
   History             History[]
 
   @@map("products")
