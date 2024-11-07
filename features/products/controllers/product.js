@@ -18,7 +18,8 @@ class ProductController {
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,
@@ -53,7 +54,8 @@ class ProductController {
         data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,
@@ -73,7 +75,8 @@ class ProductController {
         data: { product },
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,
@@ -91,7 +94,8 @@ class ProductController {
         message,
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,
@@ -108,7 +112,7 @@ class ProductController {
       if (!name) {
         return res.status(400).json({
           status: false,
-          message: "Nama produk tidak boleh kosong.",
+          message: "Nama produk tidak boleh kosong",
           data: null,
         });
       }
@@ -123,7 +127,7 @@ class ProductController {
 
       return res.json({
         status: true,
-        message: "Data produk berhasil dimuat.",
+        message: "Data produk berhasil dimuat",
         data: {
           products,
           product_quantity,
@@ -132,7 +136,8 @@ class ProductController {
         },
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,
@@ -148,7 +153,7 @@ class ProductController {
       if (!barcode) {
         return res.status(400).json({
           status: false,
-          message: "Barcode tidak boleh kosong.",
+          message: "Barcode tidak boleh kosong",
           data: null,
         });
       }
@@ -161,7 +166,8 @@ class ProductController {
         data: { product },
       });
     } catch (error) {
-      return res.status(500).json({
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,

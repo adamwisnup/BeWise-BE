@@ -30,7 +30,9 @@ class ProductService {
     );
 
     if (!products) {
-      throw new Error("Produk tidak ditemukan");
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
     }
 
     return { products };
@@ -40,7 +42,9 @@ class ProductService {
     const product = await ProductRepository.findProductById(productId);
 
     if (!product) {
-      throw new Error("Produk tidak ditemukan");
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
     }
 
     return { product };
@@ -64,7 +68,9 @@ class ProductService {
     const product = await ProductRepository.findProductById(productId);
 
     if (!product) {
-      throw new Error("Produk tidak ditemukan");
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
     }
 
     await ProductRepository.deleteProduct(productId);
@@ -74,13 +80,17 @@ class ProductService {
 
   async searchProducts(name, page = 1, limit = 10) {
     if (!name) {
-      throw new Error("Nama produk tidak boleh kosong.");
+      const error = new Error("Nama produk tidak boleh kosong");
+      error.statusCode = 400;
+      throw error;
     }
 
     const products = await ProductRepository.searchProducts(name, page, limit);
 
     if (products.length === 0) {
-      throw new Error("Produk tidak ditemukan.");
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
     }
 
     return products;
@@ -88,13 +98,17 @@ class ProductService {
 
   async scanProduct(userId, barcode) {
     if (!barcode) {
-      throw new Error("Barcode tidak boleh kosong.");
+      const error = new Error("Barcode tidak boleh kosong");
+      error.statusCode = 400;
+      throw error;
     }
 
     const product = await ProductRepository.findProductByBarcode(barcode);
 
     if (!product) {
-      throw new Error("Produk tidak ditemukan.");
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
     }
 
     await HistoryRepository.createHistory(userId, product.id);

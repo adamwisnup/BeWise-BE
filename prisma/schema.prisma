@@ -71,14 +71,15 @@ model Product {
   id                  Int             @id @default(autoincrement())
   name                String
   brand               String
-  label               String
   photo               String
   category_product_id Int
   nutrition_fact_id   Int             @unique
   barcode             String
   price               Int
+  label_id            Int
   categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
   nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
+  label               Label           @relation(fields: [label_id], references: [id])
   History             History[]
 
   @@map("products")
@@ -102,6 +103,15 @@ model Notification {
   user    User   @relation(fields: [user_id], references: [id])
 
   @@map("notifications")
+}
+
+model Label {
+  id      Int       @id @default(autoincrement())
+  name    String
+  link    String
+  Product Product[]
+
+  @@map("labels")
 }
 
 enum Gender {
