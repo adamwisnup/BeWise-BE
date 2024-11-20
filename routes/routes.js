@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const restrict = require("../middlewares/restrict");
 const { image } = require("../libs/multer");
+const passport = require("../libs/passport");
 const UserController = require("../features/users/controllers/user");
 const ProductController = require("../features/products/controllers/product");
 const InformationController = require("../features/informations/controllers/information");
@@ -19,6 +20,18 @@ router.get("/forgot-password", UserController.forgotEmailPage);
 router.post("/forgot-password", UserController.forgotPassword);
 router.get("/reset-password", UserController.resetPasswordPage);
 router.post("/reset-password", UserController.resetPassword);
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/api/v1/auth/google",
+    session: false,
+  }),
+  UserController.loginOauth
+);
 // router.get("/reset-password-test", UserController.resetPasswordTestPage);
 
 // USER PROFILE

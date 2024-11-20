@@ -5,9 +5,9 @@ const nodemailer = require("../../../libs/nodemailer");
 class UserController {
   async register(req, res) {
     try {
-      const { name, email, password } = req.body;
+      const { first_name, last_name, email, password } = req.body;
 
-      if (!name) {
+      if (!first_name) {
         return res.status(400).json({
           status: false,
           message: "Nama tidak boleh kosong",
@@ -32,7 +32,8 @@ class UserController {
       }
 
       const { user } = await UserService.register({
-        name,
+        first_name,
+        last_name,
         email,
         password,
       });
@@ -55,6 +56,15 @@ class UserController {
   async login(req, res) {
     try {
       const { email, password } = req.body;
+
+      if (!user.password && user.google_id) {
+        return res.status(400).json({
+          status: false,
+          message:
+            "Anda telah mendaftar dengan akun Google. Silakan login dengan Google",
+          data: null,
+        });
+      }
 
       if (!email) {
         return res.status(400).json({
@@ -182,7 +192,7 @@ class UserController {
   async updateProfile(req, res) {
     try {
       const userId = req.user.userId;
-      const { name, email, gender } = req.body;
+      const { first_name, last_name, email, gender } = req.body;
 
       if (!userId) {
         return res.status(400).json({
@@ -192,7 +202,7 @@ class UserController {
         });
       }
 
-      const data = { name, email, gender };
+      const data = { first_name, last_name, email, gender };
       const user = await UserService.updateProfile(data, userId);
 
       res.status(200).json({
@@ -258,7 +268,7 @@ class UserController {
       )}/api/v1/reset-password?token=${token}`;
 
       const html = await nodemailer.getHTML("forgot-password.ejs", {
-        name: user.name,
+        name: user.first_name,
         url: url,
       });
 
@@ -301,14 +311,16 @@ class UserController {
           confirmPassword
         );
 
-        res.status(200).json({
+        const { password: _, ...userWithoutPassword } = updatedUser;
+
+        return res.status(200).json({
           status: true,
           message: "Password berhasil direset",
-          data: updatedUser,
+          data: userWithoutPassword,
         });
       }
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         status: false,
         message: error.message,
         data: null,
@@ -357,6 +369,24 @@ class UserController {
       res.status(400).json({
         status: false,
         message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async loginOauth(req, res) {
+    try {
+      const token = await UserService.generateTokenOAuth(req.user);
+
+      return res.status(200).json({
+        status: true,
+        message: "Login berhasil",
+        data: { user: req.user, token },
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: false,
+        message: err.message,
         data: null,
       });
     }

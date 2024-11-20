@@ -14,35 +14,19 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  name         String
-  password     String
-  gender       Gender?
-  avatar_link  String?
-  History      History[]
-  Notification Notification[]
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  first_name  String
+  last_name   String?
+  google_id   String?
+  gender      Gender?
+  avatar_link String?
+  Booking     Booking[]
+  Payment     Payment[]
+  History     History[]
 
   @@map("users")
-}
-
-model Information {
-  id      Int    @id @default(autoincrement())
-  title   String
-  content String
-  image   String
-
-  @@map("informations")
-}
-
-model News {
-  id      Int    @id @default(autoincrement())
-  title   String
-  content String
-  author  String
-  image   String
-
-  @@map("news")
 }
 
 model CategoryProduct {
@@ -67,19 +51,29 @@ model NutritionFact {
   @@map("nutrition_facts")
 }
 
+model Label {
+  id      Int       @id @default(autoincrement())
+  name    String
+  link    String
+  Product Product[]
+
+  @@map("labels")
+}
+
 model Product {
   id                  Int             @id @default(autoincrement())
   name                String
   brand               String
   photo               String
   category_product_id Int
-  nutrition_fact_id   Int             @unique
+  nutrition_fact_id   Int
   barcode             String
-  price               Int
+  price_a             Int
+  price_b             Int
   label_id            Int
+  label               Label           @relation(fields: [label_id], references: [id])
   categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
   nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
-  label               Label           @relation(fields: [label_id], references: [id])
   History             History[]
 
   @@map("products")
@@ -95,26 +89,151 @@ model History {
   @@map("histories")
 }
 
-model Notification {
-  id      Int    @id @default(autoincrement())
-  user_id Int
-  title   String
-  message String
-  user    User   @relation(fields: [user_id], references: [id])
+model Subscription {
+  id        Int       @id @default(autoincrement())
+  plan_name String
+  price     Int
+  duration  Int
+  bookings  Booking[]
 
-  @@map("notifications")
+  @@map("subscriptions")
 }
 
-model Label {
-  id      Int       @id @default(autoincrement())
-  name    String
-  link    String
-  Product Product[]
+model Booking {
+  id              Int          @id @default(autoincrement())
+  user_id         Int
+  subscription_id Int
+  start_date      DateTime
+  end_date        DateTime
+  status          String // Status, bisa "ACTIVE", "CANCELLED", atau "EXPIRED"
+  user            User         @relation(fields: [user_id], references: [id])
+  subscription    Subscription @relation(fields: [subscription_id], references: [id])
+  payments        Payment[]
 
-  @@map("labels")
+  @@map("bookings")
+}
+
+model Payment {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  booking_id     Int
+  transaction_id String // ID transaksi dari Midtrans
+  amount         Int
+  status         String // Status "PENDING", "PAID", "FAILED"
+  payment_date   DateTime @default(now()) // Tanggal pembayaran
+  user           User     @relation(fields: [user_id], references: [id])
+  booking        Booking  @relation(fields: [booking_id], references: [id])
+
+  @@map("payments")
 }
 
 enum Gender {
   Pria
   Wanita
 }
+
+// model User {
+//   id           Int            @id @default(autoincrement())
+//   email        String         @unique
+//   name         String
+//   password     String
+//   gender       Gender?
+//   avatar_link  String?
+//   History      History[]
+//   Notification Notification[]
+
+//   @@map("users")
+// }
+
+// model Information {
+//   id      Int    @id @default(autoincrement())
+//   title   String
+//   content String
+//   image   String
+
+//   @@map("informations")
+// }
+
+// model News {
+//   id      Int    @id @default(autoincrement())
+//   title   String
+//   content String
+//   author  String
+//   image   String
+
+//   @@map("news")
+// }
+
+// model CategoryProduct {
+//   id      Int       @id @default(autoincrement())
+//   name    String
+//   Product Product[]
+
+//   @@map("category_products")
+// }
+
+// model NutritionFact {
+//   id              Int       @id @default(autoincrement())
+//   energy          Float
+//   saturated_fat   Float
+//   sugar           Float
+//   sodium          Float
+//   protein         Float
+//   fiber           Float
+//   fruit_vegetable Float
+//   Product         Product[]
+
+//   @@map("nutrition_facts")
+// }
+
+// model Product {
+//   id                  Int             @id @default(autoincrement())
+//   name                String
+//   brand               String
+//   photo               String
+//   category_product_id Int
+//   nutrition_fact_id   Int             @unique
+//   barcode             String
+//   price               Int
+//   label_id            Int
+//   categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
+//   nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
+//   label               Label           @relation(fields: [label_id], references: [id])
+//   History             History[]
+
+//   @@map("products")
+// }
+
+// model History {
+//   id         Int     @id @default(autoincrement())
+//   user_id    Int
+//   product_id Int
+//   user       User    @relation(fields: [user_id], references: [id])
+//   product    Product @relation(fields: [product_id], references: [id])
+
+//   @@map("histories")
+// }
+
+// model Notification {
+//   id      Int    @id @default(autoincrement())
+//   user_id Int
+//   title   String
+//   message String
+//   user    User   @relation(fields: [user_id], references: [id])
+
+//   @@map("notifications")
+// }
+
+// model Label {
+//   id      Int       @id @default(autoincrement())
+//   name    String
+//   link    String
+//   Product Product[]
+
+//   @@map("labels")
+// }
+
+// enum Gender {
+//   Pria
+//   Wanita
+// }
