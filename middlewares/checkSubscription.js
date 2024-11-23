@@ -1,58 +1,54 @@
 const prisma = require("../configs/config");
 
-const isSubscriptionActive = (booking) => {
-  const currentDate = new Date();
-  return (
-    booking.status === "ACTIVE" && new Date(booking.end_date) > currentDate
-  );
-};
-
-const remainingDays = (booking) => {
-  const currentDate = new Date();
-  const endDate = new Date(booking.end_date);
-
-  if (isSubscriptionActive(booking)) {
-    const diffTime = Math.abs(endDate - currentDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  }
-  return 0;
-};
-
-const subscriptionMiddleware = async (req, res, next) => {
+const checkSubscription = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const currentDate = new Date();
+    const startOfDay = new Date(currentDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(currentDate.setHours(23, 59, 59, 999));
 
-    const booking = await prisma.booking.findFirst({
+    const activeSubscription = await prisma.booking.findFirst({
       where: {
         user_id: userId,
         status: "ACTIVE",
-      },
-      orderBy: {
-        end_date: "desc",
+        end_date: {
+          gte: new Date(),
+        },
       },
     });
 
-    if (!booking || !isSubscriptionActive(booking)) {
+    if (activeSubscription) {
+      return next();
+    }
+
+    const dailyScanCount = await prisma.history.count({
+      where: {
+        user_id: userId,
+        created_at: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
+
+    if (dailyScanCount >= 5) {
       return res.status(403).json({
         status: false,
-        message: "Subscription Anda tidak aktif atau telah kedaluwarsa.",
-        data: {
-          remainingDays: booking ? remainingDays(booking) : 0,
-        },
+        message:
+          "Anda telah mencapai batas scan produk harian. Silakan berlangganan untuk akses tanpa batas.",
+        data: null,
       });
     }
 
-    req.booking = booking;
     next();
   } catch (error) {
-    console.error("Error in subscriptionMiddleware:", error);
+    console.error("Error in checkSubscription middleware:", error);
     return res.status(500).json({
       status: false,
       message: "Terjadi kesalahan saat memeriksa subscription.",
-      error: error.message,
+      data: error.message,
     });
   }
 };
 
-module.exports = subscriptionMiddleware;
+module.exports = checkSubscription;
