@@ -25,6 +25,12 @@ class UserRepository {
     });
   }
 
+  async findUserByGoogleId(googleId) {
+    return await prisma.user.findUnique({
+      where: { google_id: googleId },
+    });
+  }
+
   async updateUserAvatar(userId, avatarUrl) {
     return await prisma.user.update({
       where: {

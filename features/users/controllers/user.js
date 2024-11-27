@@ -57,15 +57,7 @@ class UserController {
     try {
       const { email, password } = req.body;
 
-      if (!user.password && user.google_id) {
-        return res.status(400).json({
-          status: false,
-          message:
-            "Anda telah mendaftar dengan akun Google. Silakan login dengan Google",
-          data: null,
-        });
-      }
-
+      // Validasi input
       if (!email) {
         return res.status(400).json({
           status: false,
@@ -82,16 +74,18 @@ class UserController {
         });
       }
 
+      // Proses login melalui service
       const { user, token } = await UserService.login({ email, password });
 
-      res.status(200).json({
+      return res.status(200).json({
         status: true,
         message: "Login berhasil",
         data: { user, token },
       });
     } catch (error) {
       console.error("Error saat login:", error);
-      res.status(401).json({
+
+      return res.status(401).json({
         status: false,
         message: error.message || "Tidak diizinkan",
         data: null,

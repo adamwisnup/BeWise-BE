@@ -8,6 +8,7 @@ const ProductController = require("../features/products/controllers/product");
 const InformationController = require("../features/informations/controllers/information");
 const NewsController = require("../features/news/controllers/news");
 const HistoryController = require("../features/histories/controllers/history");
+const SubscriptionController = require("../features/subscription/controllers/subscription");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -102,4 +103,15 @@ router.get("/histories", restrict, HistoryController.getAllHistories);
 router.get("/histories/:id", restrict, HistoryController.getHistoryById);
 router.delete("/histories/:id", restrict, HistoryController.deleteHistory);
 
+// SUBSCRIPTION
+router.post(
+  "/subscriptions/booking",
+  restrict,
+  SubscriptionController.createBooking
+);
+router.post(
+  "/subscriptions/booking/notification",
+  restrict,
+  SubscriptionController.handleMidtransNotification
+);
 module.exports = router;

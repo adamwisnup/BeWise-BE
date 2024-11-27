@@ -49,6 +49,12 @@ class UserService {
       throw new Error("Email atau password salah");
     }
 
+    if (user.google_id) {
+      throw new Error(
+        "Akun ini terdaftar menggunakan Google. Silakan login dengan akun Google Anda."
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error("Email atau password salah");
@@ -58,7 +64,7 @@ class UserService {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      JWT_SECRET_KEY,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
 
@@ -211,30 +217,6 @@ class UserService {
 
     return updatedUser;
   }
-
-  // async loginOauth(data) {
-  //   const { email } = data;
-
-  //   if (!email) {
-  //     throw new Error("Email tidak ditemukan");
-  //   }
-
-  //   const user = await UserRepository.findUserByEmail(email);
-
-  //   if (!user) {
-  //     throw new Error("Email tidak ditemukan");
-  //   }
-
-  //   delete user.password;
-
-  //   const token = jwt.sign(
-  //     { userId: user.id, email: user.email },
-  //     JWT_SECRET_KEY,
-  //     { expiresIn: "7d" }
-  //   );
-
-  //   return { user, token };
-  // }
 
   async generateTokenOAuth(user) {
     const token = jwt.sign(
