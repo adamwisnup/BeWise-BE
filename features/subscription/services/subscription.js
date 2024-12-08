@@ -70,15 +70,17 @@ class SubscriptionService {
     try {
       const { order_id, transaction_status } = notification;
 
-      console.log("Received order_id:", order_id);
-
+      // Ambil data pembayaran berdasarkan `order_id`
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
       if (!payment) {
-        throw new Error("Pembayaran tidak ditemukan.");
+        throw new Error(
+          `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
+        );
       }
 
+      // Tentukan status pembayaran berdasarkan `transaction_status`
       let newPaymentStatus = "PENDING";
       if (
         transaction_status === "capture" ||
@@ -89,11 +91,13 @@ class SubscriptionService {
         newPaymentStatus = "FAILED";
       }
 
+      // Perbarui status pembayaran
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
 
+      // Jika pembayaran berhasil, perbarui status booking
       if (newPaymentStatus === "SUCCESS") {
         await SubscriptionRepository.updateBookingStatus(
           payment.booking_id,

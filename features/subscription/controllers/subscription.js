@@ -1,4 +1,5 @@
 const SubscriptionService = require("../services/subscription");
+const crypto = require("crypto");
 
 class SubscriptionController {
   async createBooking(req, res) {
@@ -36,6 +37,19 @@ class SubscriptionController {
     try {
       const notification = req.body;
 
+      // Validasi signature key (opsional untuk keamanan tambahan)
+      const serverKey = process.env.MIDTRANS_SERVER_KEY;
+      const hashString = `${notification.order_id}${notification.status_code}${notification.gross_amount}${serverKey}`;
+      const generatedKey = crypto
+        .createHash("sha512")
+        .update(hashString)
+        .digest("hex");
+
+      if (notification.signature_key !== generatedKey) {
+        return res.status(403).json({ message: "Signature key tidak valid." });
+      }
+
+      // Proses notifikasi
       const result = await SubscriptionService.handleMidtransNotification(
         notification
       );
