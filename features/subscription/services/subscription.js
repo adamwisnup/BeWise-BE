@@ -70,7 +70,6 @@ class SubscriptionService {
     try {
       const { order_id, transaction_status } = notification;
 
-      // Ambil data pembayaran berdasarkan `order_id`
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
@@ -80,7 +79,6 @@ class SubscriptionService {
         );
       }
 
-      // Tentukan status pembayaran berdasarkan `transaction_status`
       let newPaymentStatus = "PENDING";
       if (
         transaction_status === "capture" ||
@@ -91,13 +89,11 @@ class SubscriptionService {
         newPaymentStatus = "FAILED";
       }
 
-      // Perbarui status pembayaran
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
 
-      // Jika pembayaran berhasil, perbarui status booking
       if (newPaymentStatus === "SUCCESS") {
         await SubscriptionRepository.updateBookingStatus(
           payment.booking_id,
