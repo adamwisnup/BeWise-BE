@@ -9,7 +9,7 @@ const seedAdmin = async () => {
         id: 1,
         email: "admin@mail.com",
         name: "Admin",
-        password: bcrypt.hash("admin123", 10),
+        password: bcrypt.hashSync("admin123", 10),
       },
     ],
   });
