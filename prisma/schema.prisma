@@ -134,6 +134,19 @@ model Payment {
   @@map("payments")
 }
 
+
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+   @@map("news")
+}
+
 enum Gender {
   Pria
   Wanita
