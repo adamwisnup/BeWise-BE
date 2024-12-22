@@ -9,6 +9,7 @@ const InformationController = require("../features/informations/controllers/info
 const NewsController = require("../features/news/controllers/news");
 const HistoryController = require("../features/histories/controllers/history");
 const SubscriptionController = require("../features/subscription/controllers/subscription");
+const AdminController = require("../features/admins/controllers/admin");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -114,4 +115,16 @@ router.post(
   restrict,
   SubscriptionController.handleMidtransNotification
 );
+
+// ADMIN
+router.post("/admin/login", AdminController.login);
+router.get("/admin/products", restrict, AdminController.findAllProducts);
+router.get(
+  "/admin/products/category/:category",
+  restrict,
+  AdminController.findProductByCategory
+);
+router.get("/admin/products/:id", restrict, AdminController.findProductById);
+router.post("/admin/products", restrict, AdminController.createProduct);
+
 module.exports = router;
