@@ -2,11 +2,14 @@ const express = require("express");
 const router = express.Router();
 const restrict = require("../middlewares/restrict");
 const { image } = require("../libs/multer");
+const passport = require("../libs/passport");
 const UserController = require("../features/users/controllers/user");
 const ProductController = require("../features/products/controllers/product");
 const InformationController = require("../features/informations/controllers/information");
 const NewsController = require("../features/news/controllers/news");
 const HistoryController = require("../features/histories/controllers/history");
+const SubscriptionController = require("../features/subscription/controllers/subscription");
+const AdminController = require("../features/admins/controllers/admin");
 
 // TESTING
 router.get("/users", UserController.getAllUser);
@@ -19,6 +22,18 @@ router.get("/forgot-password", UserController.forgotEmailPage);
 router.post("/forgot-password", UserController.forgotPassword);
 router.get("/reset-password", UserController.resetPasswordPage);
 router.post("/reset-password", UserController.resetPassword);
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/api/v1/auth/google",
+    session: false,
+  }),
+  UserController.loginOauth
+);
 // router.get("/reset-password-test", UserController.resetPasswordTestPage);
 
 // USER PROFILE
@@ -88,5 +103,28 @@ router.delete("/news/:id", restrict, NewsController.deleteNews);
 router.get("/histories", restrict, HistoryController.getAllHistories);
 router.get("/histories/:id", restrict, HistoryController.getHistoryById);
 router.delete("/histories/:id", restrict, HistoryController.deleteHistory);
+
+// SUBSCRIPTION
+router.post(
+  "/subscriptions/booking",
+  restrict,
+  SubscriptionController.createBooking
+);
+router.post(
+  "/subscriptions/booking/notification",
+  restrict,
+  SubscriptionController.handleMidtransNotification
+);
+
+// ADMIN
+router.post("/admin/login", AdminController.login);
+router.get("/admin/products", restrict, AdminController.findAllProducts);
+router.get(
+  "/admin/products/category/:category",
+  restrict,
+  AdminController.findProductByCategory
+);
+router.get("/admin/products/:id", restrict, AdminController.findProductById);
+router.post("/admin/products", restrict, AdminController.createProduct);
 
 module.exports = router;

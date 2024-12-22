@@ -13,36 +13,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  password String
+
+  @@map("admins")
+}
+
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  name         String
-  password     String
-  gender       Gender?
-  avatar_link  String?
-  History      History[]
-  Notification Notification[]
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  first_name  String
+  last_name   String?
+  google_id   String?
+  gender      Gender?
+  avatar_link String?
+  Booking     Booking[]
+  Payment     Payment[]
+  History     History[]
 
   @@map("users")
-}
-
-model Information {
-  id      Int    @id @default(autoincrement())
-  title   String
-  content String
-  image   String
-
-  @@map("informations")
-}
-
-model News {
-  id      Int    @id @default(autoincrement())
-  title   String
-  content String
-  author  String
-  image   String
-
-  @@map("news")
 }
 
 model CategoryProduct {
@@ -67,44 +60,6 @@ model NutritionFact {
   @@map("nutrition_facts")
 }
 
-model Product {
-  id                  Int             @id @default(autoincrement())
-  name                String
-  brand               String
-  photo               String
-  category_product_id Int
-  nutrition_fact_id   Int             @unique
-  barcode             String
-  price               Int
-  label_id            Int
-  categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
-  nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
-  label               Label           @relation(fields: [label_id], references: [id])
-  History             History[]
-
-  @@map("products")
-}
-
-model History {
-  id         Int     @id @default(autoincrement())
-  user_id    Int
-  product_id Int
-  user       User    @relation(fields: [user_id], references: [id])
-  product    Product @relation(fields: [product_id], references: [id])
-
-  @@map("histories")
-}
-
-model Notification {
-  id      Int    @id @default(autoincrement())
-  user_id Int
-  title   String
-  message String
-  user    User   @relation(fields: [user_id], references: [id])
-
-  @@map("notifications")
-}
-
 model Label {
   id      Int       @id @default(autoincrement())
   name    String
@@ -114,7 +69,107 @@ model Label {
   @@map("labels")
 }
 
+model Product {
+  id                  Int             @id @default(autoincrement())
+  name                String
+  brand               String
+  photo               String
+  category_product_id Int
+  nutrition_fact_id   Int
+  barcode             String
+  price_a             Int
+  price_b             Int
+  label_id            Int
+  label               Label           @relation(fields: [label_id], references: [id])
+  categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
+  nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])
+  History             History[]
+
+  @@map("products")
+}
+
+model History {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  product_id Int
+  user       User     @relation(fields: [user_id], references: [id])
+  product    Product  @relation(fields: [product_id], references: [id])
+  created_at DateTime @default(now())
+
+  @@map("histories")
+}
+
+model Subscription {
+  id        Int       @id @default(autoincrement())
+  plan_name String
+  price     Int
+  duration  Int
+  bookings  Booking[]
+
+  @@map("subscriptions")
+}
+
+model Booking {
+  id              Int           @id @default(autoincrement())
+  user_id         Int
+  subscription_id Int
+  start_date      DateTime
+  end_date        DateTime
+  status          BookingStatus
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @default(now()) @updatedAt
+  user            User          @relation(fields: [user_id], references: [id])
+  subscription    Subscription  @relation(fields: [subscription_id], references: [id])
+  payments        Payment[]
+
+  @@map("bookings")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  user_id        Int
+  booking_id     Int
+  transaction_id String        @unique
+  amount         Float
+  status         PaymentStatus
+  payment_date   DateTime      @default(now())
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @default(now()) @updatedAt
+  User           User?         @relation(fields: [userId], references: [id])
+  userId         Int?
+  Booking        Booking?      @relation(fields: [bookingId], references: [id])
+  bookingId      Int?
+
+  @@map("payments")
+}
+
+
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+   @@map("news")
+}
+
 enum Gender {
   Pria
   Wanita
+}
+
+enum BookingStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

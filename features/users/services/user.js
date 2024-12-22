@@ -7,7 +7,7 @@ const path = require("path");
 
 class UserService {
   async register(data) {
-    const { name, email, password } = data;
+    const { first_name, last_name, email, password } = data;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -19,14 +19,15 @@ class UserService {
       throw new Error("Email sudah terdaftar");
     }
 
-    if (!name || !email || !password) {
+    if (!first_name || !last_name || !email || !password) {
       throw new Error("Kolom yang wajib diisi tidak lengkap");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await UserRepository.createUser({
-      name,
+      first_name,
+      last_name,
       email,
       password: hashedPassword,
     });
@@ -48,6 +49,12 @@ class UserService {
       throw new Error("Email atau password salah");
     }
 
+    if (user.google_id) {
+      throw new Error(
+        "Akun ini terdaftar menggunakan Google. Silakan login dengan akun Google Anda."
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error("Email atau password salah");
@@ -57,7 +64,7 @@ class UserService {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      JWT_SECRET_KEY,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "7d" }
     );
 
@@ -140,14 +147,14 @@ class UserService {
   }
 
   async updateProfile(data, userId) {
-    const { name, email, gender } = data;
+    const { first_name, last_name, email, gender } = data;
 
     const existingUser = await UserRepository.findUserById(userId);
     if (!existingUser) {
       throw new Error("Pengguna tidak ditemukan");
     }
 
-    if (name && name.length < 3) {
+    if (first_name && first_name.length < 3) {
       throw new Error("Nama harus terdiri dari setidaknya 3 karakter");
     }
 
@@ -156,7 +163,8 @@ class UserService {
     }
 
     const updatedData = {
-      name: name || existingUser.name,
+      first_name: first_name || existingUser.first_name,
+      last_name: last_name || existingUser.last_name,
       email: email || existingUser.email,
       gender: gender || existingUser.gender,
     };
@@ -179,7 +187,7 @@ class UserService {
   }
 
   async resetPassword(email, token, password, confirmPassword) {
-    const user = UserRepository.findUserByEmail(email);
+    const user = await UserRepository.findUserByEmail(email);
 
     if (!user) {
       throw new Error("Email tidak ditemukan");
@@ -199,13 +207,24 @@ class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const updatedUser = UserRepository.updateUserByEmail(email, {
+    const updatedUser = await UserRepository.updateUserByEmail(email, {
       password: hashedPassword,
     });
 
-    delete updatedUser.password;
+    if (updatedUser) {
+      delete updatedUser.password;
+    }
 
     return updatedUser;
+  }
+
+  async generateTokenOAuth(user) {
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET_KEY,
+      { expiresIn: "7d" }
+    );
+    return token;
   }
 }
 
