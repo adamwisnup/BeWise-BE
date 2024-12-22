@@ -74,7 +74,6 @@ class UserController {
         });
       }
 
-      // Proses login melalui service
       const { user, token } = await UserService.login({ email, password });
 
       return res.status(200).json({
