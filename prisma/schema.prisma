@@ -76,7 +76,7 @@ model Product {
   photo               String
   category_product_id Int
   nutrition_fact_id   Int
-  barcode             String
+  barcode             String          @unique
   price_a             Int
   price_b             Int
   label_id            Int
@@ -143,7 +143,6 @@ model Payment {
   @@map("payments")
 }
 
-
 model News {
   id        Int      @id @default(autoincrement())
   title     String
@@ -153,7 +152,7 @@ model News {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-   @@map("news")
+  @@map("news")
 }
 
 enum Gender {

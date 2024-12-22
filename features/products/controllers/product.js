@@ -158,12 +158,18 @@ class ProductController {
         });
       }
 
-      const product = await ProductService.scanProduct(userId, barcode);
+      const { product, recommendedProducts } = await ProductService.scanProduct(
+        userId,
+        barcode
+      );
 
       return res.json({
         status: true,
         message: "Data produk berhasil dimuat",
-        data: { product },
+        data: {
+          product,
+          rekomendasi: recommendedProducts,
+        },
       });
     } catch (error) {
       const statusCode = error.statusCode || 500;

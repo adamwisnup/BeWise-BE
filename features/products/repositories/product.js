@@ -96,6 +96,35 @@ class ProductRepository {
 
     return product;
   }
+
+  async findRecommendedProducts(
+    currentLabelId,
+    categoryProductId,
+    scannedProductId
+  ) {
+    return await prisma.product.findMany({
+      where: {
+        label_id: {
+          lte: currentLabelId,
+        },
+        category_product_id: categoryProductId,
+        NOT: {
+          id: scannedProductId,
+        },
+      },
+      orderBy: {
+        label_id: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        brand: true,
+        photo: true,
+        barcode: true,
+        label_id: true,
+      },
+    });
+  }
 }
 
 module.exports = new ProductRepository();
