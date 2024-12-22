@@ -28,6 +28,11 @@ const seedLabelProducts = async () => {
         name: "E",
         link: "https://ik.imagekit.io/awp2705/BeWise/Label/7%2045604.svg?updatedAt=1730831681240",
       },
+      {
+        id: 6,
+        name: "F",
+        link: null,
+      },
     ],
   });
 };
