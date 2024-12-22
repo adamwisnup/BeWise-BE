@@ -49,21 +49,21 @@ class AdminRepository {
     });
   }
 
+  async findProductByBarcode(barcode) {
+    return await prisma.product.findUnique({
+      where: {
+        barcode: barcode,
+      },
+    });
+  }
+
   async createProduct(data) {
     console.log("Data diterima di AdminRepository:", data);
 
+    const { id, ...newData } = data;
+
     return await prisma.product.create({
-      data: {
-        name: data.name,
-        brand: data.brand,
-        photo: data.photo,
-        barcode: data.barcode,
-        price_a: data.price_a,
-        price_b: data.price_b,
-        category_product_id: data.category_product_id,
-        nutrition_fact_id: data.nutrition_fact_id,
-        label_id: data.label_id,
-      },
+      data: newData,
     });
   }
 

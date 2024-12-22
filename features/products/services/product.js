@@ -2,20 +2,6 @@ const ProductRepository = require("../repositories/product");
 const HistoryRepository = require("../../histories/repositories/history");
 
 class ProductService {
-  //   async createProduct(data) {
-  //     const { name, price, stock } = data;
-
-  //     if (!name || !price || !stock) {
-  //       throw new Error("Kolom yang wajib diisi tidak lengkap");
-  //     }
-
-  //     const product = await ProductRepository.createProduct({
-  //       ...data,
-  //     });
-
-  //     return { product };
-  //   }
-
   async findAllProducts(page = 1, limit = 10) {
     const products = await ProductRepository.findAllProducts(page, limit);
 
@@ -113,8 +99,13 @@ class ProductService {
 
     await HistoryRepository.createHistory(userId, product.id);
 
-    return product;
+    const recommendedProducts = await ProductRepository.findRecommendedProducts(
+      product.label_id,
+      product.category_product_id,
+      product.id
+    );
+
+    return { product, recommendedProducts };
   }
 }
-
 module.exports = new ProductService();

@@ -73,7 +73,6 @@ class AdminService {
   async createProduct(data) {
     console.log("Data diterima di ProductService:", data);
 
-    // Validasi input
     const requiredFields = [
       "name",
       "brand",
@@ -90,6 +89,13 @@ class AdminService {
       if (!data[field]) {
         throw new Error(`${field} wajib diisi`);
       }
+    }
+
+    const existingProduct = await AdminRepository.findProductByBarcode(
+      data.barcode
+    );
+    if (existingProduct) {
+      throw new Error("Produk dengan barcode tersebut sudah ada.");
     }
 
     const product = await AdminRepository.createProduct(data);
