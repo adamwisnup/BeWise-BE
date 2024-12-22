@@ -6,6 +6,7 @@ const {
 const { seedProducts } = require("./seeds/product.seed");
 const { seedSubscriptions } = require("./seeds/subscription.seed");
 const { seedAdmin } = require("./seeds/admin.seed");
+const { seedNews } = require("./seeds/news.seed");
 // const truncateTables = require("./seeds/truncateTables");
 // const resetDatabase = require("./seeds/resetDatabase");
 const prisma = require("../configs/config");
@@ -35,6 +36,9 @@ async function main() {
 
     console.log("Seeding Subscriptions...");
     await seedSubscriptions();
+
+    console.log("Seeding News...");
+    await seedNews();
 
     console.log("Seeding completed!");
   } catch (error) {
