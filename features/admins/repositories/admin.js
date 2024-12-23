@@ -75,6 +75,45 @@ class AdminRepository {
   //     data: updateData,
   //   });
   // }
+
+  async createNutritionFact(data) {
+    return await prisma.nutritionFact.create({
+      data,
+    });
+  }
+
+  async createProduct(productData) {
+    return prisma.product.create({
+      data: productData,
+    });
+  }
+
+  async updateProductWithNutriScoreAndLabel(productId, nutriScore, labelId) {
+    return prisma.product.update({
+      where: { id: productId },
+      data: {
+        nutri_score: nutriScore,
+        label_id: labelId,
+      },
+    });
+  }
+
+  async findOrCreateLabel(labelName, labelLink) {
+    let label = await prisma.label.findFirst({
+      where: { name: labelName },
+    });
+
+    if (!label) {
+      label = await prisma.label.create({
+        data: {
+          name: labelName,
+          link: labelLink,
+        },
+      });
+    }
+
+    return label;
+  }
 }
 
 module.exports = new AdminRepository();

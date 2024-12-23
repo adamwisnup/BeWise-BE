@@ -80,6 +80,7 @@ model Product {
   price_a             Int
   price_b             Int
   label_id            Int
+  nutri_score         Float?
   label               Label           @relation(fields: [label_id], references: [id])
   categoryProduct     CategoryProduct @relation(fields: [category_product_id], references: [id])
   nutritionFact       NutritionFact   @relation(fields: [nutrition_fact_id], references: [id])

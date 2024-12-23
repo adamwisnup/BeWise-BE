@@ -1,14 +1,6 @@
 const prisma = require("../../../configs/config");
 
 class ProductRepository {
-  //   async createProduct(data) {
-  //     return await prisma.product.create({
-  //       data: {
-  //         ...data,
-  //       },
-  //     });
-  //   }
-
   async findAllProducts(page, limit) {
     const skip = (page - 1) * limit;
     return await prisma.product.findMany({
@@ -46,15 +38,6 @@ class ProductRepository {
       },
     });
   }
-
-  //   async updateProduct(productId, updateData) {
-  //     return await prisma.product.update({
-  //       where: {
-  //         id: parseInt(productId),
-  //       },
-  //       data: updateData,
-  //     });
-  //   }
 
   async deleteProduct(productId) {
     return await prisma.product.delete({
@@ -120,8 +103,20 @@ class ProductRepository {
         name: true,
         brand: true,
         photo: true,
+        category_product_id: true,
+        nutrition_fact_id: true,
         barcode: true,
+        price_a: true,
+        price_b: true,
         label_id: true,
+        nutri_score: true,
+        label: {
+          select: {
+            id: true,
+            name: true,
+            link: true,
+          },
+        },
       },
     });
   }
