@@ -116,6 +116,62 @@ class AdminService {
 
   //   return { updatedProduct };
   // }
+
+  async addProduct(productData) {
+    const {
+      name,
+      brand,
+      photo,
+      category_product_id,
+      nutrition_fact_data,
+      barcode,
+      price_a,
+      price_b,
+    } = productData;
+
+    // Simpan Nutrition Fact
+    const nutritionFact = await AdminRepository.createNutritionFact(
+      nutrition_fact_data
+    );
+
+    // Simpan Produk Awal
+    const product = await AdminRepository.createProduct({
+      name,
+      brand,
+      photo,
+      category_product_id,
+      nutrition_fact_id: nutritionFact.id,
+      barcode,
+      price_a,
+      price_b,
+    });
+
+    // Hit API Machine Learning untuk mendapatkan NutriScore dan Label
+    const mlResponse = await axios.post(
+      "https://ml-api.example.com/nutri-score",
+      nutrition_fact_data
+    );
+    const { nutri_score, label_name, label_link } = mlResponse.data;
+
+    // Cari atau Buat Label
+    const label = await AdminRepository.findOrCreateLabel(
+      label_name,
+      label_link
+    );
+
+    // Update Produk dengan NutriScore dan Label
+    await AdminRepository.updateProductWithNutriScoreAndLabel(
+      product.id,
+      nutri_score,
+      label.id
+    );
+
+    return {
+      ...product,
+      nutri_score,
+      label,
+    };
+  }
 }
 
 module.exports = new AdminService();

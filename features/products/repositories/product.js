@@ -103,8 +103,20 @@ class ProductRepository {
         name: true,
         brand: true,
         photo: true,
+        category_product_id: true,
+        nutrition_fact_id: true,
         barcode: true,
+        price_a: true,
+        price_b: true,
         label_id: true,
+        nutri_score: true,
+        label: {
+          select: {
+            id: true,
+            name: true,
+            link: true,
+          },
+        },
       },
     });
   }

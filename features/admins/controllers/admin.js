@@ -166,6 +166,27 @@ class AdminController {
   //     });
   //   }
   // }
+
+  async addProductController(req, res) {
+    try {
+      const productData = req.body;
+
+      const newProduct = await AdminService.addProduct(productData);
+
+      return res.json({
+        status: true,
+        message: "Produk berhasil ditambahkan",
+        data: newProduct,
+      });
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
 }
 
 module.exports = new AdminController();
