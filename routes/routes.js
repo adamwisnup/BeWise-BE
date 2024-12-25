@@ -47,6 +47,7 @@ router.patch("/profile", restrict, UserController.updateProfile);
 
 // PRODUCT
 router.get("/products", restrict, ProductController.getAllProducts);
+router.get("/products/top-choices", restrict, ProductController.getTopChoices);
 router.get("/products/search", restrict, ProductController.searchProducts);
 router.get("/products/:id", restrict, ProductController.getProductById);
 router.get(

@@ -114,6 +114,47 @@ class AdminRepository {
 
     return label;
   }
+
+  async findRecommendedProducts(
+    currentLabelId,
+    categoryProductId,
+    scannedProductId
+  ) {
+    return await prisma.product.findMany({
+      where: {
+        label_id: {
+          lte: currentLabelId, // Produk dengan label_id lebih kecil atau sama
+        },
+        category_product_id: categoryProductId, // Filter berdasarkan kategori produk
+        NOT: {
+          id: scannedProductId, // Kecualikan produk yang dipindai
+        },
+      },
+      orderBy: {
+        label_id: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        brand: true,
+        photo: true,
+        category_product_id: true,
+        nutrition_fact_id: true,
+        barcode: true,
+        price_a: true,
+        price_b: true,
+        label_id: true,
+        nutri_score: true,
+        label: {
+          select: {
+            id: true,
+            name: true,
+            link: true,
+          },
+        },
+      },
+    });
+  }
 }
 
 module.exports = new AdminRepository();
