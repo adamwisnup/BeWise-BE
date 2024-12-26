@@ -98,25 +98,23 @@ class ProductRepository {
       orderBy: {
         label_id: "asc",
       },
-      select: {
-        id: true,
-        name: true,
-        brand: true,
-        photo: true,
-        category_product_id: true,
-        nutrition_fact_id: true,
-        barcode: true,
-        price_a: true,
-        price_b: true,
-        label_id: true,
-        nutri_score: true,
-        label: {
-          select: {
-            id: true,
-            name: true,
-            link: true,
-          },
-        },
+      include: {
+        label: true,
+      },
+    });
+  }
+
+  async findTopChoiceProducts() {
+    return await prisma.product.findMany({
+      where: {
+        label_id: 1,
+      },
+      orderBy: {
+        label_id: "asc",
+      },
+      take: 5,
+      include: {
+        label: true,
       },
     });
   }

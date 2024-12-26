@@ -180,6 +180,24 @@ class ProductController {
       });
     }
   }
+
+  async getTopChoices(req, res) {
+    try {
+      const products = await ProductService.getTopChoiceProducts();
+
+      return res.status(200).json({
+        status: true,
+        message: "Berhasil memuat pilihan terbaik",
+        data: products,
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
 }
 
 module.exports = new ProductController();

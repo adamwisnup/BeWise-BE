@@ -39,6 +39,10 @@ const seedCategoryProducts = async () => {
         id: 9,
         name: "Frozen Food",
       },
+      {
+        id: 10,
+        name: "Susu",
+      },
     ],
   });
 };

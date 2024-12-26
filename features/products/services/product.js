@@ -107,5 +107,17 @@ class ProductService {
 
     return { product, recommendedProducts };
   }
+
+  async getTopChoiceProducts() {
+    const products = await ProductRepository.findTopChoiceProducts();
+
+    if (!products || products.length === 0) {
+      const error = new Error("Tidak ada produk dengan label_id 1.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return products.sort(() => Math.random() - 0.5).slice(0, 5);
+  }
 }
 module.exports = new ProductService();
