@@ -63,26 +63,35 @@ class AdminController {
 
   async findProductByCategory(req, res) {
     try {
-      const { categoryProductId } = req.params;
-      const { page, limit } = req.query;
+      const { category } = req.params;
+      const categoryProductId = parseInt(category);
+      const { page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
 
       const { products } = await AdminService.findProductByCategory(
         categoryProductId,
-        page,
-        limit
+        pageNumber,
+        limitNumber
       );
+
+      if (!products || products.length === 0) {
+        return res.status(404).json({
+          status: false,
+          message: "Produk tidak ditemukan",
+          data: null,
+        });
+      }
 
       return res.status(200).json({
         status: true,
         message: "Berhasil mendapatkan data produk",
-        data: products,
+        data: { products, page: pageNumber, limit: limitNumber },
       });
     } catch (error) {
-      console.error("Error saat findProductByCategory:", error);
-
       return res.status(error.statusCode || 500).json({
         status: false,
-        message: error.message || "Terjadi kesalahan",
+        message: error.message || "Internal server error",
         data: null,
       });
     }

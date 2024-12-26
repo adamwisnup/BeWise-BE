@@ -30,8 +30,6 @@ class AdminRepository {
       },
       include: {
         label: true,
-        nutritionFact: true,
-        categoryProduct: true,
       },
     });
   }

@@ -47,6 +47,7 @@ router.patch("/profile", restrict, UserController.updateProfile);
 
 // PRODUCT
 router.get("/products", restrict, ProductController.getAllProducts);
+router.post("/products/scan", restrict, ProductController.scanProduct);
 router.get("/products/top-choices", restrict, ProductController.getTopChoices);
 router.get("/products/search", restrict, ProductController.searchProducts);
 router.get("/products/:id", restrict, ProductController.getProductById);
@@ -56,7 +57,6 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
-router.post("/products/scan", restrict, ProductController.scanProduct);
 
 // INFORMATION
 router.post(
