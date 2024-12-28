@@ -1,5 +1,8 @@
 const ProductRepository = require("../repositories/product");
 const HistoryRepository = require("../../histories/repositories/history");
+const axios = require("axios");
+const imagekit = require("../../../libs/imagekit");
+const path = require("path");
 
 class ProductService {
   async findAllProducts(page = 1, limit = 10) {
@@ -119,5 +122,138 @@ class ProductService {
 
     return products.sort(() => Math.random() - 0.5).slice(0, 5);
   }
+
+  async addFoodProduct(data) {
+    const {
+      name,
+      brand,
+      photo,
+      category_product_id,
+      barcode,
+      price_a,
+      price_b,
+      nutritionFact,
+    } = data;
+
+    // Step 1: Hit API ML untuk mendapatkan nutri_score dan category
+    const mlResponse = await axios.post(
+      "https://ml-bewise.up.railway.app/calculate-nutri-score/food",
+      [{ nutritionFact }]
+    );
+
+    const { category: label_id, nutri_score } = mlResponse.data[0];
+
+    // Step 2: Simpan nutritionFact ke tabel NutritionFact
+    const nutritionFactRecord = await ProductRepository.createNutritionFact(
+      nutritionFact
+    );
+
+    // Step 3: Simpan produk ke tabel Product
+    const product = await ProductRepository.createProduct({
+      name,
+      brand,
+      photo,
+      category_product_id,
+      barcode,
+      price_a,
+      price_b,
+      nutri_score,
+      label_id: parseInt(label_id, 10),
+      nutrition_fact_id: nutritionFactRecord.id,
+    });
+
+    return product;
+  }
+
+  async addBeverageProduct(data) {
+    const {
+      name,
+      brand,
+      photo,
+      category_product_id,
+      barcode,
+      price_a,
+      price_b,
+      nutritionFact,
+    } = data;
+
+    // Step 1: Hit API ML untuk mendapatkan nutri_score dan category
+    const mlResponse = await axios.post(
+      "https://ml-bewise.up.railway.app/calculate-nutri-score/beverages",
+      [{ nutritionFact }]
+    );
+
+    const { label_id, nutri_score } = mlResponse.data[0];
+
+    // Step 2: Simpan nutritionFact ke tabel NutritionFact
+    const nutritionFactRecord = await ProductRepository.createNutritionFact(
+      nutritionFact
+    );
+
+    // Step 3: Simpan produk ke tabel Product
+    const product = await ProductRepository.createProduct({
+      name,
+      brand,
+      photo,
+      category_product_id,
+      barcode,
+      price_a,
+      price_b,
+      nutri_score,
+      label_id: parseInt(label_id, 10),
+      nutrition_fact_id: nutritionFactRecord.id,
+    });
+
+    return product;
+  }
+
+  // async addProduct(data, avatar) {
+  //   const fileBase64 = avatar.buffer.toString("base64");
+  //   const {
+  //     name,
+  //     brand,
+  //     category_product_id,
+  //     barcode,
+  //     price_a,
+  //     price_b,
+  //     nutritionFact,
+  //   } = data;
+
+  //   const response = await imagekit.upload({
+  //     fileName: Date.now() + path.extname(avatar.originalname),
+  //     file: fileBase64,
+  //     folder: "BeWise/Products",
+  //   });
+  //   const fileUrl = response.url;
+
+  //   // Step 1: Hit API ML untuk mendapatkan nutri_score dan category
+  //   const mlResponse = await axios.post(
+  //     "https://ml-bewise.up.railway.app/calculate-nutri-score/food",
+  //     [{ nutritionFact }]
+  //   );
+
+  //   const { category: label_id, nutri_score } = mlResponse.data[0];
+
+  //   // Step 2: Simpan nutritionFact ke tabel NutritionFact
+  //   const nutritionFactRecord = await ProductRepository.createNutritionFact(
+  //     nutritionFact
+  //   );
+
+  //   // Step 3: Simpan produk ke tabel Product
+  //   const product = await ProductRepository.createProduct({
+  //     name,
+  //     brand,
+  //     photo: fileUrl, // Menggunakan URL foto yang diunggah
+  //     category_product_id,
+  //     barcode,
+  //     price_a,
+  //     price_b,
+  //     nutri_score,
+  //     label_id: parseInt(label_id, 10),
+  //     nutrition_fact_id: nutritionFactRecord.id,
+  //   });
+
+  //   return product;
+  // }
 }
 module.exports = new ProductService();

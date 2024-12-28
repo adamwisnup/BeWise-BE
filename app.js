@@ -9,7 +9,10 @@ const YAML = require("yaml");
 const fs = require("fs");
 const app = express();
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://bewise.up.railway.app",
+];
 
 app.use(
   cors({

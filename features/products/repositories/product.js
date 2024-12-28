@@ -118,6 +118,47 @@ class ProductRepository {
       },
     });
   }
+
+  async findLabelByName(name) {
+    return prisma.label.findFirst({ where: { name } });
+  }
+
+  async createNutritionFact(nutritionFact) {
+    return prisma.nutritionFact.create({ data: nutritionFact });
+  }
+
+  async createBeverageProduct(productData) {
+    const { label_id, category_product_id, nutrition_fact_id, ...rest } =
+      productData;
+
+    // Pastikan ID valid
+    if (
+      isNaN(label_id) ||
+      isNaN(category_product_id) ||
+      isNaN(nutrition_fact_id)
+    ) {
+      throw new Error("Invalid IDs provided.");
+    }
+
+    return prisma.product.create({
+      data: {
+        ...rest,
+        label: {
+          connect: { id: label_id }, // Menghubungkan label yang sudah ada
+        },
+        categoryProduct: {
+          connect: { id: category_product_id }, // Menghubungkan kategori produk yang sudah ada
+        },
+        nutritionFact: {
+          connect: { id: nutrition_fact_id }, // Menghubungkan nutritionFact yang sudah ada
+        },
+      },
+    });
+  }
+
+  async createProduct(productData) {
+    return prisma.product.create({ data: productData });
+  }
 }
 
 module.exports = new ProductRepository();

@@ -47,6 +47,10 @@ class SubscriptionRepository {
       data: { status },
     });
   }
+
+  async findAllSubscriptions() {
+    return prisma.subscription.findMany(); // Pastikan model ini ada di schema Prisma
+  }
 }
 
 module.exports = new SubscriptionRepository();
