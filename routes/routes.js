@@ -46,6 +46,18 @@ router.patch(
 router.patch("/profile", restrict, UserController.updateProfile);
 
 // PRODUCT
+router.post(
+  "/products/beverages",
+  restrict,
+  ProductController.addBeverageProduct
+);
+router.post("/products/foods", restrict, ProductController.addFoodProduct);
+// router.post(
+//   "/products",
+//   restrict,
+//   image.single("photo"),
+//   ProductController.addProduct
+// );
 router.get("/products", restrict, ProductController.getAllProducts);
 router.post("/products/scan", restrict, ProductController.scanProduct);
 router.get("/products/top-choices", restrict, ProductController.getTopChoices);
@@ -116,6 +128,11 @@ router.post(
   restrict,
   SubscriptionController.handleMidtransNotification
 );
+// // Routing untuk menampilkan form booking
+// router.get("/booking", SubscriptionController.getSubscriptions);
+
+// Routing untuk melakukan booking
+router.post("/booking", SubscriptionController.createBooking);
 
 // ADMIN
 router.post("/admin/login", AdminController.login);

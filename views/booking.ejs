@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulasi Booking Subscription</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2>Simulasi Booking dan Pembayaran Langganan</h2>
+      <form id="bookingForm" method="POST" action="/booking">
+        <div class="mb-3">
+          <label for="subscriptionId" class="form-label">Pilih Langganan</label>
+          <select
+            class="form-select"
+            id="subscriptionId"
+            name="subscriptionId"
+            required
+          >
+            <option value="">Pilih Langganan</option>
+            <% subscriptions.forEach(subscription => { %>
+            <option value="<%= subscription.id %>">
+              <%= subscription.plan_name %> - <%= subscription.price %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Buat Booking</button>
+      </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Script untuk menangani pengiriman form booking
+      document
+        .getElementById("bookingForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const form = new FormData(this);
+          const response = await fetch("/booking", {
+            method: "POST",
+            body: form,
+          });
+
+          const result = await response.json();
+          if (result.status) {
+            // Redirect ke URL pembayaran Midtrans jika sukses
+            window.location.href = result.paymentUrl;
+          } else {
+            alert(result.message);
+          }
+        });
+    </script>
+  </body>
+</html>

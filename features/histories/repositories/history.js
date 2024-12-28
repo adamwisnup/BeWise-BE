@@ -13,7 +13,17 @@ class HistoryRepository {
   }
 
   async findAllHistories(data) {
-    return await prisma.history.findMany();
+    return await prisma.history.findMany({
+      where: {
+        user_id: data.userId,
+      },
+      include: {
+        product: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
   }
 
   async findHistoryById(historyId) {

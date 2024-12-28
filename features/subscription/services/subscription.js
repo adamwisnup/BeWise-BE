@@ -1,5 +1,7 @@
 const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
+const UserRepository = require("../../users/repositories/user");
+const { name } = require("ejs");
 
 class SubscriptionService {
   constructor() {
@@ -17,6 +19,11 @@ class SubscriptionService {
     );
     if (!subscription) {
       throw new Error("Subscription tidak ditemukan.");
+    }
+
+    const user = await UserRepository.findUserById(userId);
+    if (!user) {
+      throw new Error("Pengguna tidak ditemukan.");
     }
 
     const booking = await SubscriptionRepository.createBooking({
@@ -37,6 +44,7 @@ class SubscriptionService {
       customer_details: {
         user_id: userId,
         subscription_plan: subscription.plan_name,
+        email: user.email,
       },
     };
 
@@ -66,9 +74,54 @@ class SubscriptionService {
     return { booking, payment: transaction };
   }
 
+  // async handleMidtransNotification(notification) {
+  //   try {
+  //     const { order_id, transaction_status } = notification;
+
+  //     const payment = await SubscriptionRepository.findPaymentByTransactionId(
+  //       order_id
+  //     );
+  //     if (!payment) {
+  //       throw new Error(
+  //         `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
+  //       );
+  //     }
+
+  //     let newPaymentStatus = "PENDING";
+  //     if (
+  //       transaction_status === "capture" ||
+  //       transaction_status === "settlement"
+  //     ) {
+  //       newPaymentStatus = "SUCCESS";
+  //     } else if (["deny", "cancel", "expire"].includes(transaction_status)) {
+  //       newPaymentStatus = "FAILED";
+  //     }
+
+  //     await SubscriptionRepository.updatePaymentStatus(
+  //       payment.id,
+  //       newPaymentStatus
+  //     );
+
+  //     if (newPaymentStatus === "SUCCESS") {
+  //       await SubscriptionRepository.updateBookingStatus(
+  //         payment.booking_id,
+  //         "ACTIVE"
+  //       );
+  //     }
+
+  //     return { paymentStatus: newPaymentStatus };
+  //   } catch (error) {
+  //     console.error("Midtrans Notification Error:", error.message);
+  //     throw error;
+  //   }
+  // }
+
   async handleMidtransNotification(notification) {
     try {
-      const { order_id, transaction_status } = notification;
+      const { order_id, transaction_status, fraud_status } = notification;
+
+      // Ekstrak booking_id dari order_id
+      const [_, bookingId] = order_id.split("-");
 
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
@@ -79,21 +132,28 @@ class SubscriptionService {
         );
       }
 
+      // Pemetaan Status
       let newPaymentStatus = "PENDING";
       if (
         transaction_status === "capture" ||
         transaction_status === "settlement"
       ) {
         newPaymentStatus = "SUCCESS";
-      } else if (["deny", "cancel", "expire"].includes(transaction_status)) {
+      } else if (
+        transaction_status === "deny" ||
+        transaction_status === "cancel" ||
+        transaction_status === "expire"
+      ) {
         newPaymentStatus = "FAILED";
       }
 
+      // Update Status Pembayaran
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
 
+      // Update Status Booking jika Pembayaran Berhasil
       if (newPaymentStatus === "SUCCESS") {
         await SubscriptionRepository.updateBookingStatus(
           payment.booking_id,

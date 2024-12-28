@@ -28,11 +28,11 @@ async function main() {
     console.log("Seeding Label Products...");
     await seedLabelProducts();
 
-    console.log("Seeding Nutritionfact Products...");
-    await seedNutritionfactProducts();
+    // console.log("Seeding Nutritionfact Products...");
+    // await seedNutritionfactProducts();
 
-    console.log("Seeding Products...");
-    await seedProducts();
+    // console.log("Seeding Products...");
+    // await seedProducts();
 
     console.log("Seeding Subscriptions...");
     await seedSubscriptions();

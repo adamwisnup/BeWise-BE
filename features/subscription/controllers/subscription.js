@@ -1,5 +1,5 @@
 const SubscriptionService = require("../services/subscription");
-const crypto = require("crypto");
+const SubscriptionRepository = require("../repositories/subscription");
 
 class SubscriptionController {
   async createBooking(req, res) {
@@ -33,20 +33,57 @@ class SubscriptionController {
     }
   }
 
+  // // In your subscription controller
+  // async createBooking(req, res) {
+  //   try {
+  //     const { subscriptionId } = req.body;
+  //     const userId = req.user.userId;
+
+  //     if (!subscriptionId) {
+  //       return res.status(400).json({
+  //         status: false,
+  //         message: "ID subscription harus diisi.",
+  //       });
+  //     }
+
+  //     // Create the booking and payment URL logic
+  //     const bookingData = await SubscriptionService.createBooking(
+  //       userId,
+  //       subscriptionId
+  //     );
+
+  //     // Check if paymentUrl exists and pass it to the EJS view
+  //     const paymentUrl = bookingData.payment?.redirect_url || null;
+
+  //     res.status(200).render("booking", {
+  //       status: true,
+  //       message: "Booking berhasil dibuat.",
+  //       subscriptions: await SubscriptionService.getAllSubscriptions(), // Pass available subscriptions to the view
+  //       paymentUrl: paymentUrl, // Ensure paymentUrl is passed
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({
+  //       status: false,
+  //       message: error.message || "Terjadi kesalahan.",
+  //     });
+  //   }
+  // }
+
+  // // Fungsi untuk mendapatkan data langganan
+  // async getSubscriptions(req, res) {
+  //   try {
+  //     const subscriptions = await SubscriptionRepository.findAllSubscriptions();
+  //     res.render("booking.ejs", { subscriptions, layout: false });
+  //   } catch (error) {
+  //     console.error("Error fetching subscriptions:", error.message);
+  //     res.status(500).send("Terjadi kesalahan.");
+  //   }
+  // }
+
   async handleMidtransNotification(req, res) {
     try {
       const notification = req.body;
-
-      // const serverKey = process.env.MIDTRANS_SERVER_KEY;
-      // const hashString = `${notification.order_id}${notification.status_code}${notification.gross_amount}${serverKey}`;
-      // const generatedKey = crypto
-      //   .createHash("sha512")
-      //   .update(hashString)
-      //   .digest("hex");
-
-      // if (notification.signature_key !== generatedKey) {
-      //   return res.status(403).json({ message: "Signature key tidak valid." });
-      // }
 
       const result = await SubscriptionService.handleMidtransNotification(
         notification

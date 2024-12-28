@@ -198,6 +198,52 @@ class ProductController {
       });
     }
   }
+
+  async addFoodProduct(req, res) {
+    try {
+      const product = await ProductService.addFoodProduct(req.body);
+      res.status(201).json({
+        message: "Produk berhasil ditambahkan.",
+        data: product,
+      });
+    } catch (error) {
+      console.error("Error adding product:", error.message);
+      res.status(500).json({
+        message: "Gagal menambahkan produk.",
+        error: error.message,
+      });
+    }
+  }
+
+  async addBeverageProduct(req, res) {
+    try {
+      const product = await ProductService.addBeverageProduct(req.body);
+      res.status(201).json({
+        message: "Produk berhasil ditambahkan.",
+        data: product,
+      });
+    } catch (error) {
+      console.error("Error adding product:", error.message);
+      res.status(500).json({
+        message: "Gagal menambahkan produk.",
+        error: error.message,
+      });
+    }
+  }
+
+  // async addProduct(req, res) {
+  //   try {
+  //     const product = await ProductService.addProduct(req.body, req.file);
+  //     res
+  //       .status(201)
+  //       .json({ message: "Produk berhasil ditambahkan.", data: product });
+  //   } catch (error) {
+  //     console.error("Error adding product:", error.message);
+  //     res
+  //       .status(500)
+  //       .json({ message: "Gagal menambahkan produk.", error: error.message });
+  //   }
+  // }
 }
 
 module.exports = new ProductController();
