@@ -6,46 +6,57 @@ const seedCategoryProducts = async () => {
       {
         id: 1,
         name: "Kopi",
+        type: "BEVERAGE",
       },
       {
         id: 2,
         name: "Teh",
+        type: "BEVERAGE",
       },
       {
         id: 3,
         name: "Isotonik",
+        type: "BEVERAGE",
       },
       {
         id: 4,
         name: "Jus",
+        type: "BEVERAGE",
       },
       {
         id: 5,
-        name: "Snack",
+        name: "Air Mineral",
+        type: "BEVERAGE",
       },
       {
         id: 6,
-        name: "Wafer & Biskuit",
+        name: "Susu",
+        type: "BEVERAGE",
       },
       {
         id: 7,
         name: "Roti",
+        type: "FOOD",
       },
       {
         id: 8,
         name: "Mie",
+        type: "FOOD",
       },
       {
         id: 9,
         name: "Frozen Food",
+        type: "FOOD",
       },
       {
         id: 10,
-        name: "Susu",
+        name: "Wafer & Biskuit",
+        type: "FOOD",
       },
       {
         id: 11,
-        name: "Air Mineral",
+        name: "Snack",
+        type: "FOOD",
       },
     ],
   });
