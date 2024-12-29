@@ -123,20 +123,22 @@ class SubscriptionService {
     try {
       console.log("Notifikasi Midtrans diterima:", notification);
 
-      const { order_id, transaction_status, gross_amount, signature_key } =
+      const { order_id, transaction_status, price, signature_key } =
         notification;
 
       // Validasi Signature Key dengan gross_amount
-      const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
+      const dataToHash = `${order_id}${transaction_status}${price}${this.serverKey}`;
       console.log("order_id", order_id);
       console.log("transaction_status", transaction_status);
-      console.log("gross_amount", gross_amount);
+      console.log("gross_amount", price);
       console.log("server_key", this.serverKey);
       console.log("String untuk hashing:", dataToHash);
 
       const expectedSignatureKey = crypto
         .createHash("sha512")
-        .update(dataToHash)
+        .update(
+          `${order_id}${transaction_status}${gross_amount}${this.serverKey}`
+        )
         .digest("hex");
 
       console.log("Signature key yang diterima:", signature_key);
