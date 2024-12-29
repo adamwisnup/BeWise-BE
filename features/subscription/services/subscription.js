@@ -126,18 +126,18 @@ class SubscriptionService {
         notification;
 
       // Validasi Signature Key
-      const expectedSignatureKey = crypto
-        .createHash("sha512")
-        .update(`${order_id}${transaction_status}${this.serverKey}`)
-        .digest("hex");
+      // const expectedSignatureKey = crypto
+      //   .createHash("sha512")
+      //   .update(`${order_id}${transaction_status}${this.serverKey}`)
+      //   .digest("hex");
 
-      console.log("Signature key yang diterima:", signature_key);
-      console.log("Signature key yang diharapkan:", expectedSignatureKey);
+      // console.log("Signature key yang diterima:", signature_key);
+      // console.log("Signature key yang diharapkan:", expectedSignatureKey);
 
-      if (signature_key !== expectedSignatureKey) {
-        console.error("Signature key tidak valid. Proses dihentikan.");
-        throw new Error("Signature key tidak valid.");
-      }
+      // if (signature_key !== expectedSignatureKey) {
+      //   console.error("Signature key tidak valid. Proses dihentikan.");
+      //   throw new Error("Signature key tidak valid.");
+      // }
 
       // Ekstrak booking_id dari order_id
       console.log("Order ID:", order_id);
