@@ -51,6 +51,24 @@ class SubscriptionRepository {
   async findAllSubscriptions() {
     return prisma.subscription.findMany();
   }
+
+  async findActiveSubscriptionByUserId(userId) {
+    const now = new Date();
+
+    const activeBooking = await prisma.booking.findFirst({
+      where: {
+        user_id: userId,
+        status: "ACTIVE",
+        start_date: { lte: now },
+        end_date: { gte: now },
+      },
+      include: {
+        subscription: true,
+      },
+    });
+
+    return activeBooking;
+  }
 }
 
 module.exports = new SubscriptionRepository();

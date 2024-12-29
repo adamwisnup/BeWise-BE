@@ -2,7 +2,6 @@ const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
 const UserRepository = require("../../users/repositories/user");
 const crypto = require("crypto");
-const { log } = require("console");
 
 class SubscriptionService {
   constructor() {
@@ -208,6 +207,21 @@ class SubscriptionService {
       console.error("Midtrans Notification Error:", error.message);
       throw error;
     }
+  }
+
+  async checkUserSubscription(userId) {
+    const activeBooking =
+      await SubscriptionRepository.findActiveSubscriptionByUserId(userId);
+
+    if (!activeBooking) {
+      return { isActive: false };
+    }
+
+    return {
+      isActive: true,
+      planName: activeBooking.subscription.plan_name,
+      validUntil: activeBooking.end_date,
+    };
   }
 }
 
