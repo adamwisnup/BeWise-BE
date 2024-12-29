@@ -136,9 +136,7 @@ class SubscriptionService {
 
       const expectedSignatureKey = crypto
         .createHash("sha512")
-        .update(
-          `${order_id}${transaction_status}${gross_amount}${this.serverKey}`
-        )
+        .update(`${order_id}${transaction_status}${price}${this.serverKey}`)
         .digest("hex");
 
       console.log("Signature key yang diterima:", signature_key);
