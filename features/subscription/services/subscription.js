@@ -2,6 +2,7 @@ const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
 const UserRepository = require("../../users/repositories/user");
 const crypto = require("crypto");
+const { log } = require("console");
 
 class SubscriptionService {
   constructor() {
@@ -122,11 +123,15 @@ class SubscriptionService {
     try {
       console.log("Notifikasi Midtrans diterima:", notification);
 
-      const { order_id, transaction_status, fraud_status, signature_key } =
+      const { order_id, transaction_status, gross_amount, signature_key } =
         notification;
 
-      // Validasi Signature Key
-      const dataToHash = `${order_id}${transaction_status}${this.serverKey}`;
+      // Validasi Signature Key dengan gross_amount
+      const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
+      console.log("order_id", order_id);
+      console.log("transaction_status", transaction_status);
+      console.log("gross_amount", gross_amount);
+      console.log("server_key", this.serverKey);
       console.log("String untuk hashing:", dataToHash);
 
       const expectedSignatureKey = crypto
@@ -163,7 +168,7 @@ class SubscriptionService {
 
       // Pemetaan Status
       console.log("Status transaksi:", transaction_status);
-      console.log("Status fraud:", fraud_status);
+      console.log("Gross Amount:", gross_amount);
 
       let newPaymentStatus = "PENDING";
       if (
