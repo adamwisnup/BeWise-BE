@@ -132,7 +132,6 @@ router.post(
 );
 router.post(
   "/subscriptions/booking/notification",
-  restrict,
   SubscriptionController.handleMidtransNotification
 );
 // // Routing untuk menampilkan form booking

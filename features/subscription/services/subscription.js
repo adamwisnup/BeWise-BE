@@ -1,7 +1,7 @@
 const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
 const UserRepository = require("../../users/repositories/user");
-const { name } = require("ejs");
+const crypto = require("crypto");
 
 class SubscriptionService {
   constructor() {
@@ -120,21 +120,47 @@ class SubscriptionService {
 
   async handleMidtransNotification(notification) {
     try {
-      const { order_id, transaction_status, fraud_status } = notification;
+      console.log("Notifikasi Midtrans diterima:", notification);
+
+      const { order_id, transaction_status, fraud_status, signature_key } =
+        notification;
+
+      // Validasi Signature Key
+      const expectedSignatureKey = crypto
+        .createHash("sha512")
+        .update(`${order_id}${transaction_status}${this.serverKey}`)
+        .digest("hex");
+
+      console.log("Signature key yang diterima:", signature_key);
+      console.log("Signature key yang diharapkan:", expectedSignatureKey);
+
+      if (signature_key !== expectedSignatureKey) {
+        console.error("Signature key tidak valid. Proses dihentikan.");
+        throw new Error("Signature key tidak valid.");
+      }
 
       // Ekstrak booking_id dari order_id
+      console.log("Order ID:", order_id);
       const [_, bookingId] = order_id.split("-");
+      console.log("Booking ID:", bookingId);
 
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
       if (!payment) {
+        console.error(
+          `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
+        );
         throw new Error(
           `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
         );
       }
+      console.log("Data pembayaran ditemukan:", payment);
 
       // Pemetaan Status
+      console.log("Status transaksi:", transaction_status);
+      console.log("Status fraud:", fraud_status);
+
       let newPaymentStatus = "PENDING";
       if (
         transaction_status === "capture" ||
@@ -148,19 +174,24 @@ class SubscriptionService {
       ) {
         newPaymentStatus = "FAILED";
       }
+      console.log("Status pembayaran baru:", newPaymentStatus);
 
       // Update Status Pembayaran
+      console.log("Memperbarui status pembayaran di database...");
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
+      console.log("Status pembayaran berhasil diperbarui.");
 
       // Update Status Booking jika Pembayaran Berhasil
       if (newPaymentStatus === "SUCCESS") {
+        console.log("Memperbarui status booking menjadi ACTIVE...");
         await SubscriptionRepository.updateBookingStatus(
           payment.booking_id,
           "ACTIVE"
         );
+        console.log("Status booking berhasil diperbarui.");
       }
 
       return { paymentStatus: newPaymentStatus };
