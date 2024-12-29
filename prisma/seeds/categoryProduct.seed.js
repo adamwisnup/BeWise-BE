@@ -43,6 +43,10 @@ const seedCategoryProducts = async () => {
         id: 10,
         name: "Susu",
       },
+      {
+        id: 11,
+        name: "Air Mineral",
+      },
     ],
   });
 };
