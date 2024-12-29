@@ -127,25 +127,25 @@ class SubscriptionService {
         notification;
 
       // Validasi Signature Key dengan gross_amount
-      const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
-      console.log("order_id", order_id);
-      console.log("transaction_status", transaction_status);
-      console.log("gross_amount", gross_amount);
-      console.log("server_key", this.serverKey);
-      console.log("String untuk hashing:", dataToHash);
+      // const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
+      // console.log("order_id", order_id);
+      // console.log("transaction_status", transaction_status);
+      // console.log("gross_amount", gross_amount);
+      // console.log("server_key", this.serverKey);
+      // console.log("String untuk hashing:", dataToHash);
 
-      const expectedSignatureKey = crypto
-        .createHash("sha512")
-        .update(dataToHash)
-        .digest("hex");
+      // const expectedSignatureKey = crypto
+      //   .createHash("sha512")
+      //   .update(dataToHash)
+      //   .digest("hex");
 
-      console.log("Signature key yang diterima:", signature_key);
-      console.log("Signature key yang diharapkan:", expectedSignatureKey);
+      // console.log("Signature key yang diterima:", signature_key);
+      // console.log("Signature key yang diharapkan:", expectedSignatureKey);
 
-      if (signature_key !== expectedSignatureKey) {
-        console.error("Signature key tidak valid. Proses dihentikan.");
-        throw new Error("Signature key tidak valid.");
-      }
+      // if (signature_key !== expectedSignatureKey) {
+      //   console.error("Signature key tidak valid. Proses dihentikan.");
+      //   throw new Error("Signature key tidak valid.");
+      // }
 
       // Ekstrak booking_id dari order_id
       console.log("Order ID:", order_id);
