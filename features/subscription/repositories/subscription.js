@@ -49,7 +49,7 @@ class SubscriptionRepository {
   }
 
   async findAllSubscriptions() {
-    return prisma.subscription.findMany(); // Pastikan model ini ada di schema Prisma
+    return prisma.subscription.findMany();
   }
 }
 

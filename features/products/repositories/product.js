@@ -159,6 +159,10 @@ class ProductRepository {
   async createProduct(productData) {
     return prisma.product.create({ data: productData });
   }
+
+  async findAllCategoryProduct() {
+    return prisma.categoryProduct.findMany();
+  }
 }
 
 module.exports = new ProductRepository();

@@ -255,5 +255,11 @@ class ProductService {
 
   //   return product;
   // }
+
+  async findAllCategoryProduct() {
+    const categories = await ProductRepository.findAllCategoryProduct();
+
+    return { categories };
+  }
 }
 module.exports = new ProductService();

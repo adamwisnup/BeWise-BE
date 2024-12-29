@@ -45,6 +45,13 @@ router.patch(
 );
 router.patch("/profile", restrict, UserController.updateProfile);
 
+// CATEGORY PRODUCT
+router.get(
+  "/categories/products",
+  restrict,
+  ProductController.getAllCategoryProduct
+);
+
 // PRODUCT
 router.post(
   "/products/beverages",

@@ -244,6 +244,23 @@ class ProductController {
   //       .json({ message: "Gagal menambahkan produk.", error: error.message });
   //   }
   // }
+
+  async getAllCategoryProduct(req, res) {
+    try {
+      const categoryProducts = await ProductService.findAllCategoryProduct();
+      return res.json({
+        status: true,
+        message: "Data kategori produk berhasil dimuat",
+        data: categoryProducts,
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
 }
 
 module.exports = new ProductController();
