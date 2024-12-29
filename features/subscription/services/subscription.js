@@ -36,9 +36,10 @@ class SubscriptionService {
       status: "PENDING",
     });
 
+    const order_id = `ORDER-${booking.id}-${Date.now()}`;
     const payload = {
       transaction_details: {
-        order_id: `ORDER-${booking.id}-${Date.now()}`,
+        order_id: order_id,
         gross_amount: subscription.price,
       },
       customer_details: {
@@ -66,7 +67,8 @@ class SubscriptionService {
     await SubscriptionRepository.createPayment({
       user_id: userId,
       booking_id: booking.id,
-      transaction_id: transaction.token,
+      // transaction_id: transaction.token,
+      transaction_id: order_id,
       amount: subscription.price,
       status: "PENDING",
     });
