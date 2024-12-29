@@ -126,24 +126,28 @@ class SubscriptionService {
         notification;
 
       // Validasi Signature Key
-      // const expectedSignatureKey = crypto
-      //   .createHash("sha512")
-      //   .update(`${order_id}${transaction_status}${this.serverKey}`)
-      //   .digest("hex");
+      const dataToHash = `${order_id}${transaction_status}${this.serverKey}`;
+      console.log("String untuk hashing:", dataToHash);
 
-      // console.log("Signature key yang diterima:", signature_key);
-      // console.log("Signature key yang diharapkan:", expectedSignatureKey);
+      const expectedSignatureKey = crypto
+        .createHash("sha512")
+        .update(dataToHash)
+        .digest("hex");
 
-      // if (signature_key !== expectedSignatureKey) {
-      //   console.error("Signature key tidak valid. Proses dihentikan.");
-      //   throw new Error("Signature key tidak valid.");
-      // }
+      console.log("Signature key yang diterima:", signature_key);
+      console.log("Signature key yang diharapkan:", expectedSignatureKey);
+
+      if (signature_key !== expectedSignatureKey) {
+        console.error("Signature key tidak valid. Proses dihentikan.");
+        throw new Error("Signature key tidak valid.");
+      }
 
       // Ekstrak booking_id dari order_id
       console.log("Order ID:", order_id);
       const [_, bookingId] = order_id.split("-");
       console.log("Booking ID:", bookingId);
 
+      // Cek data pembayaran berdasarkan order_id
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
