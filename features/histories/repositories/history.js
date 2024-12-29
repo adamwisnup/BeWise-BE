@@ -19,6 +19,7 @@ class HistoryRepository {
       },
       include: {
         product: true,
+        label: true,
       },
       orderBy: {
         created_at: "desc",
