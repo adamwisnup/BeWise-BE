@@ -2,5 +2,5 @@ node_modules
 # Keep environment variables out of version control
 .env
 request.http
-./prisma/seeds
-./prisma/seed.js
+prisma/seeds
+prisma/seed.js

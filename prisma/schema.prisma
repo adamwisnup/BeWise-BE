@@ -39,8 +39,9 @@ model User {
 }
 
 model CategoryProduct {
-  id      Int       @id @default(autoincrement())
+  id      Int         @id @default(autoincrement())
   name    String
+  type    ProductType
   Product Product[]
 
   @@map("category_products")
@@ -172,4 +173,9 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+}
+
+enum ProductType {
+  BEVERAGE
+  FOOD
 }
