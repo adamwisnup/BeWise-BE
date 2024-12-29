@@ -18,8 +18,11 @@ class HistoryRepository {
         user_id: data.userId,
       },
       include: {
-        product: true,
-        label: true,
+        product: {
+          include: {
+            label: true,
+          },
+        },
       },
       orderBy: {
         created_at: "desc",
