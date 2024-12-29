@@ -1,4 +1,5 @@
 const UserService = require("../services/user");
+const SubscriptionService = require("../../subscription/services/subscription");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET_KEY } = process.env;
 const nodemailer = require("../../../libs/nodemailer");
@@ -92,6 +93,36 @@ class UserController {
     }
   }
 
+  // async whoami(req, res) {
+  //   try {
+  //     const authorization = req.headers.authorization;
+
+  //     if (!authorization || !authorization.startsWith("Bearer ")) {
+  //       return res.status(401).json({
+  //         status: false,
+  //         message: "Token otorisasi dibutuhkan",
+  //         data: null,
+  //       });
+  //     }
+
+  //     const token = authorization.split(" ")[1];
+  //     const user = await UserService.getUserFromToken(token);
+
+  //     res.status(200).json({
+  //       status: true,
+  //       message: "Data pengguna berhasil diambil",
+  //       data: user,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error saat mengambil data pengguna:", error);
+  //     res.status(401).json({
+  //       status: false,
+  //       message: error.message || "Tidak diizinkan",
+  //       data: null,
+  //     });
+  //   }
+  // }
+
   async whoami(req, res) {
     try {
       const authorization = req.headers.authorization;
@@ -107,16 +138,45 @@ class UserController {
       const token = authorization.split(" ")[1];
       const user = await UserService.getUserFromToken(token);
 
+      if (!user) {
+        return res.status(401).json({
+          status: false,
+          message: "Pengguna tidak ditemukan atau token tidak valid",
+          data: null,
+        });
+      }
+
+      const subscriptionStatus =
+        await SubscriptionService.checkUserSubscription(user.id);
+
+      if (!subscriptionStatus.isActive) {
+        return res.status(200).json({
+          status: false,
+          message: "Data pengguna berhasil diambil",
+          data: {
+            user,
+            subscription: {
+              isActive: false,
+              planName: null,
+              validUntil: null,
+            },
+          },
+        });
+      }
+
       res.status(200).json({
         status: true,
         message: "Data pengguna berhasil diambil",
-        data: user,
+        data: {
+          user,
+          subscription: subscriptionStatus,
+        },
       });
     } catch (error) {
       console.error("Error saat mengambil data pengguna:", error);
-      res.status(401).json({
+      res.status(500).json({
         status: false,
-        message: error.message || "Tidak diizinkan",
+        message: error.message || "Terjadi kesalahan pada server",
         data: null,
       });
     }

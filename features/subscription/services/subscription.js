@@ -1,7 +1,7 @@
 const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
 const UserRepository = require("../../users/repositories/user");
-const { name } = require("ejs");
+const crypto = require("crypto");
 
 class SubscriptionService {
   constructor() {
@@ -36,9 +36,10 @@ class SubscriptionService {
       status: "PENDING",
     });
 
+    const order_id = `ORDER-${booking.id}-${Date.now()}`;
     const payload = {
       transaction_details: {
-        order_id: `ORDER-${booking.id}-${Date.now()}`,
+        order_id: order_id,
         gross_amount: subscription.price,
       },
       customer_details: {
@@ -66,7 +67,8 @@ class SubscriptionService {
     await SubscriptionRepository.createPayment({
       user_id: userId,
       booking_id: booking.id,
-      transaction_id: transaction.token,
+      // transaction_id: transaction.token,
+      transaction_id: order_id,
       amount: subscription.price,
       status: "PENDING",
     });
@@ -118,21 +120,55 @@ class SubscriptionService {
 
   async handleMidtransNotification(notification) {
     try {
-      const { order_id, transaction_status, fraud_status } = notification;
+      console.log("Notifikasi Midtrans diterima:", notification);
+
+      const { order_id, transaction_status, gross_amount, signature_key } =
+        notification;
+
+      // Validasi Signature Key dengan gross_amount
+      // const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
+      // console.log("order_id", order_id);
+      // console.log("transaction_status", transaction_status);
+      // console.log("gross_amount", gross_amount);
+      // console.log("server_key", this.serverKey);
+      // console.log("String untuk hashing:", dataToHash);
+
+      // const expectedSignatureKey = crypto
+      //   .createHash("sha512")
+      //   .update(dataToHash)
+      //   .digest("hex");
+
+      // console.log("Signature key yang diterima:", signature_key);
+      // console.log("Signature key yang diharapkan:", expectedSignatureKey);
+
+      // if (signature_key !== expectedSignatureKey) {
+      //   console.error("Signature key tidak valid. Proses dihentikan.");
+      //   throw new Error("Signature key tidak valid.");
+      // }
 
       // Ekstrak booking_id dari order_id
+      console.log("Order ID:", order_id);
       const [_, bookingId] = order_id.split("-");
+      console.log("Booking ID:", bookingId);
 
+      // Cek data pembayaran berdasarkan order_id
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
       if (!payment) {
+        console.error(
+          `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
+        );
         throw new Error(
           `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
         );
       }
+      console.log("Data pembayaran ditemukan:", payment);
 
       // Pemetaan Status
+      console.log("Status transaksi:", transaction_status);
+      console.log("Gross Amount:", gross_amount);
+
       let newPaymentStatus = "PENDING";
       if (
         transaction_status === "capture" ||
@@ -146,19 +182,24 @@ class SubscriptionService {
       ) {
         newPaymentStatus = "FAILED";
       }
+      console.log("Status pembayaran baru:", newPaymentStatus);
 
       // Update Status Pembayaran
+      console.log("Memperbarui status pembayaran di database...");
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
+      console.log("Status pembayaran berhasil diperbarui.");
 
       // Update Status Booking jika Pembayaran Berhasil
       if (newPaymentStatus === "SUCCESS") {
+        console.log("Memperbarui status booking menjadi ACTIVE...");
         await SubscriptionRepository.updateBookingStatus(
           payment.booking_id,
           "ACTIVE"
         );
+        console.log("Status booking berhasil diperbarui.");
       }
 
       return { paymentStatus: newPaymentStatus };
@@ -166,6 +207,21 @@ class SubscriptionService {
       console.error("Midtrans Notification Error:", error.message);
       throw error;
     }
+  }
+
+  async checkUserSubscription(userId) {
+    const activeBooking =
+      await SubscriptionRepository.findActiveSubscriptionByUserId(userId);
+
+    if (!activeBooking) {
+      return { isActive: false };
+    }
+
+    return {
+      isActive: true,
+      planName: activeBooking.subscription.plan_name,
+      validUntil: activeBooking.end_date,
+    };
   }
 }
 
