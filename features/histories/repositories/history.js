@@ -12,8 +12,11 @@ class HistoryRepository {
     return history;
   }
 
-  async findAllHistories(data) {
+  async findAllHistories(data, page, limit) {
+    const skip = (page - 1) * limit;
     return await prisma.history.findMany({
+      skip,
+      take: limit,
       where: {
         user_id: data.userId,
       },
