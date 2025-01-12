@@ -69,6 +69,13 @@ class SubscriptionRepository {
 
     return activeBooking;
   }
+
+  async updateBookingEndDate(bookingId, newEndDate) {
+    return await prisma.booking.update({
+      where: { id: bookingId },
+      data: { end_date: newEndDate },
+    });
+  }
 }
 
 module.exports = new SubscriptionRepository();

@@ -78,16 +78,54 @@ class SubscriptionService {
 
   // async handleMidtransNotification(notification) {
   //   try {
-  //     const { order_id, transaction_status } = notification;
+  //     console.log("Notifikasi Midtrans diterima:", notification);
 
+  //     const { order_id, transaction_status, gross_amount, signature_key } =
+  //       notification;
+
+  //     // Validasi Signature Key dengan gross_amount
+  //     // const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
+  //     // console.log("order_id", order_id);
+  //     // console.log("transaction_status", transaction_status);
+  //     // console.log("gross_amount", gross_amount);
+  //     // console.log("server_key", this.serverKey);
+  //     // console.log("String untuk hashing:", dataToHash);
+
+  //     // const expectedSignatureKey = crypto
+  //     //   .createHash("sha512")
+  //     //   .update(dataToHash)
+  //     //   .digest("hex");
+
+  //     // console.log("Signature key yang diterima:", signature_key);
+  //     // console.log("Signature key yang diharapkan:", expectedSignatureKey);
+
+  //     // if (signature_key !== expectedSignatureKey) {
+  //     //   console.error("Signature key tidak valid. Proses dihentikan.");
+  //     //   throw new Error("Signature key tidak valid.");
+  //     // }
+
+  //     // Ekstrak booking_id dari order_id
+  //     console.log("Order ID:", order_id);
+  //     const [_, bookingId] = order_id.split("-");
+  //     console.log("Booking ID:", bookingId);
+
+  //     // Cek data pembayaran berdasarkan order_id
   //     const payment = await SubscriptionRepository.findPaymentByTransactionId(
   //       order_id
   //     );
   //     if (!payment) {
+  //       console.error(
+  //         `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
+  //       );
   //       throw new Error(
   //         `Pembayaran dengan order_id ${order_id} tidak ditemukan.`
   //       );
   //     }
+  //     console.log("Data pembayaran ditemukan:", payment);
+
+  //     // Pemetaan Status
+  //     console.log("Status transaksi:", transaction_status);
+  //     console.log("Gross Amount:", gross_amount);
 
   //     let newPaymentStatus = "PENDING";
   //     if (
@@ -95,20 +133,31 @@ class SubscriptionService {
   //       transaction_status === "settlement"
   //     ) {
   //       newPaymentStatus = "SUCCESS";
-  //     } else if (["deny", "cancel", "expire"].includes(transaction_status)) {
+  //     } else if (
+  //       transaction_status === "deny" ||
+  //       transaction_status === "cancel" ||
+  //       transaction_status === "expire"
+  //     ) {
   //       newPaymentStatus = "FAILED";
   //     }
+  //     console.log("Status pembayaran baru:", newPaymentStatus);
 
+  //     // Update Status Pembayaran
+  //     console.log("Memperbarui status pembayaran di database...");
   //     await SubscriptionRepository.updatePaymentStatus(
   //       payment.id,
   //       newPaymentStatus
   //     );
+  //     console.log("Status pembayaran berhasil diperbarui.");
 
+  //     // Update Status Booking jika Pembayaran Berhasil
   //     if (newPaymentStatus === "SUCCESS") {
+  //       console.log("Memperbarui status booking menjadi ACTIVE...");
   //       await SubscriptionRepository.updateBookingStatus(
   //         payment.booking_id,
   //         "ACTIVE"
   //       );
+  //       console.log("Status booking berhasil diperbarui.");
   //     }
 
   //     return { paymentStatus: newPaymentStatus };
@@ -125,33 +174,10 @@ class SubscriptionService {
       const { order_id, transaction_status, gross_amount, signature_key } =
         notification;
 
-      // Validasi Signature Key dengan gross_amount
-      // const dataToHash = `${order_id}${transaction_status}${gross_amount}${this.serverKey}`;
-      // console.log("order_id", order_id);
-      // console.log("transaction_status", transaction_status);
-      // console.log("gross_amount", gross_amount);
-      // console.log("server_key", this.serverKey);
-      // console.log("String untuk hashing:", dataToHash);
-
-      // const expectedSignatureKey = crypto
-      //   .createHash("sha512")
-      //   .update(dataToHash)
-      //   .digest("hex");
-
-      // console.log("Signature key yang diterima:", signature_key);
-      // console.log("Signature key yang diharapkan:", expectedSignatureKey);
-
-      // if (signature_key !== expectedSignatureKey) {
-      //   console.error("Signature key tidak valid. Proses dihentikan.");
-      //   throw new Error("Signature key tidak valid.");
-      // }
-
-      // Ekstrak booking_id dari order_id
       console.log("Order ID:", order_id);
       const [_, bookingId] = order_id.split("-");
       console.log("Booking ID:", bookingId);
 
-      // Cek data pembayaran berdasarkan order_id
       const payment = await SubscriptionRepository.findPaymentByTransactionId(
         order_id
       );
@@ -164,10 +190,6 @@ class SubscriptionService {
         );
       }
       console.log("Data pembayaran ditemukan:", payment);
-
-      // Pemetaan Status
-      console.log("Status transaksi:", transaction_status);
-      console.log("Gross Amount:", gross_amount);
 
       let newPaymentStatus = "PENDING";
       if (
@@ -184,22 +206,40 @@ class SubscriptionService {
       }
       console.log("Status pembayaran baru:", newPaymentStatus);
 
-      // Update Status Pembayaran
-      console.log("Memperbarui status pembayaran di database...");
       await SubscriptionRepository.updatePaymentStatus(
         payment.id,
         newPaymentStatus
       );
       console.log("Status pembayaran berhasil diperbarui.");
 
-      // Update Status Booking jika Pembayaran Berhasil
       if (newPaymentStatus === "SUCCESS") {
-        console.log("Memperbarui status booking menjadi ACTIVE...");
-        await SubscriptionRepository.updateBookingStatus(
-          payment.booking_id,
-          "ACTIVE"
-        );
-        console.log("Status booking berhasil diperbarui.");
+        const existingActiveBooking =
+          await SubscriptionRepository.findActiveSubscriptionByUserId(
+            payment.user_id
+          );
+        if (existingActiveBooking) {
+          console.log("Booking aktif ditemukan, memperbarui end_date...");
+
+          const newEndDate = new Date(existingActiveBooking.end_date);
+          newEndDate.setDate(
+            newEndDate.getDate() + existingActiveBooking.subscription.duration
+          );
+
+          await SubscriptionRepository.updateBookingEndDate(
+            existingActiveBooking.id,
+            newEndDate
+          );
+          console.log("End date booking berhasil diperbarui.");
+        } else {
+          console.log(
+            "Tidak ada booking aktif, memperbarui status booking menjadi ACTIVE..."
+          );
+          await SubscriptionRepository.updateBookingStatus(
+            payment.booking_id,
+            "ACTIVE"
+          );
+          console.log("Status booking berhasil diperbarui.");
+        }
       }
 
       return { paymentStatus: newPaymentStatus };
