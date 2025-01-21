@@ -3,11 +3,13 @@ const HistoryService = require("../services/history");
 class HistoryController {
   async getAllHistories(req, res) {
     try {
+      const { userId } = req.user;
       const { page = 1, limit = 10 } = req.query;
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
 
       const histories = await HistoryService.findAllHistories(
+        userId,
         pageNumber,
         limitNumber
       );

@@ -1,7 +1,11 @@
 const HistoryRepository = require("../repositories/history");
 class HistoryService {
-  async findAllHistories(page = 1, limit = 10) {
-    const histories = await HistoryRepository.findAllHistories(page, limit);
+  async findAllHistories(userId, page = 1, limit = 10) {
+    const histories = await HistoryRepository.findAllHistories(
+      userId,
+      page,
+      limit
+    );
 
     return histories;
   }
