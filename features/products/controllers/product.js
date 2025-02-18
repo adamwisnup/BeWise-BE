@@ -201,13 +201,31 @@ class ProductController {
 
   async addFoodProduct(req, res) {
     try {
-      const product = await ProductService.addFoodProduct(req.body);
+      const avatar = req.file;
+      if (!avatar) {
+        return res.status(400).json({ message: "File foto wajib diunggah." });
+      }
+
+      const nutritionFact = {
+        energy: parseFloat(req.body["nutritionFact.energy"]),
+        saturated_fat: parseFloat(req.body["nutritionFact.saturated_fat"]),
+        sugar: parseFloat(req.body["nutritionFact.sugar"]),
+        sodium: parseFloat(req.body["nutritionFact.sodium"]),
+        protein: parseFloat(req.body["nutritionFact.protein"]),
+        fiber: parseFloat(req.body["nutritionFact.fiber"]),
+        fruit_vegetable: parseFloat(req.body["nutritionFact.fruit_vegetable"]),
+      };
+
+      const productData = { ...req.body, nutritionFact };
+
+      const product = await ProductService.addFoodProduct(productData, avatar);
+
       res.status(201).json({
         message: "Produk berhasil ditambahkan.",
         data: product,
       });
     } catch (error) {
-      console.error("Error adding product:", error.message);
+      console.error("Error adding product:", error);
       res.status(500).json({
         message: "Gagal menambahkan produk.",
         error: error.message,
@@ -217,7 +235,28 @@ class ProductController {
 
   async addBeverageProduct(req, res) {
     try {
-      const product = await ProductService.addBeverageProduct(req.body);
+      const avatar = req.file;
+      if (!avatar) {
+        return res.status(400).json({ message: "File foto wajib diunggah." });
+      }
+
+      const nutritionFact = {
+        energy: parseFloat(req.body["nutritionFact.energy"]),
+        saturated_fat: parseFloat(req.body["nutritionFact.saturated_fat"]),
+        sugar: parseFloat(req.body["nutritionFact.sugar"]),
+        sodium: parseFloat(req.body["nutritionFact.sodium"]),
+        protein: parseFloat(req.body["nutritionFact.protein"]),
+        fiber: parseFloat(req.body["nutritionFact.fiber"]),
+        fruit_vegetable: parseFloat(req.body["nutritionFact.fruit_vegetable"]),
+      };
+
+      const productData = { ...req.body, nutritionFact };
+
+      const product = await ProductService.addBeverageProduct(
+        productData,
+        avatar
+      );
+
       res.status(201).json({
         message: "Produk berhasil ditambahkan.",
         data: product,
@@ -230,20 +269,6 @@ class ProductController {
       });
     }
   }
-
-  // async addProduct(req, res) {
-  //   try {
-  //     const product = await ProductService.addProduct(req.body, req.file);
-  //     res
-  //       .status(201)
-  //       .json({ message: "Produk berhasil ditambahkan.", data: product });
-  //   } catch (error) {
-  //     console.error("Error adding product:", error.message);
-  //     res
-  //       .status(500)
-  //       .json({ message: "Gagal menambahkan produk.", error: error.message });
-  //   }
-  // }
 
   async getAllCategoryProduct(req, res) {
     try {
