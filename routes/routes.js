@@ -56,9 +56,15 @@ router.get(
 router.post(
   "/products/beverages",
   restrict,
+  image.single("photo"),
   ProductController.addBeverageProduct
 );
-router.post("/products/foods", restrict, ProductController.addFoodProduct);
+router.post(
+  "/products/foods",
+  restrict,
+  image.single("photo"),
+  ProductController.addFoodProduct
+);
 // router.post(
 //   "/products",
 //   restrict,
