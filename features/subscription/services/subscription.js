@@ -2,6 +2,7 @@ const axios = require("axios");
 const SubscriptionRepository = require("../repositories/subscription");
 const UserRepository = require("../../users/repositories/user");
 const crypto = require("crypto");
+const { timeStamp } = require("console");
 
 class SubscriptionService {
   constructor() {
@@ -257,10 +258,26 @@ class SubscriptionService {
       return { isActive: false };
     }
 
-    return {
-      isActive: true,
-      planName: activeBooking.subscription.plan_name,
-      validUntil: activeBooking.end_date,
+   const now = new Date();
+  const validUntil = new Date(activeBooking.end_date);
+
+  const nowWIB = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+  const validUntilWIB = new Date(validUntil.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+
+  
+  let diffMs = validUntilWIB - nowWIB;
+  if (diffMs < 0) diffMs = 0; 
+
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+  return {
+    isActive: true,
+    planName: activeBooking.subscription.plan_name,
+    validUntil: validUntilWIB.toISOString(),
+    countDownDay: `${days}`,
     };
   }
 }
