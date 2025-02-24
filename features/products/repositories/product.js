@@ -144,13 +144,13 @@ class ProductRepository {
       data: {
         ...rest,
         label: {
-          connect: { id: label_id }, // Menghubungkan label yang sudah ada
+          connect: { id: label_id }, 
         },
         categoryProduct: {
-          connect: { id: category_product_id }, // Menghubungkan kategori produk yang sudah ada
+          connect: { id: category_product_id },
         },
         nutritionFact: {
-          connect: { id: nutrition_fact_id }, // Menghubungkan nutritionFact yang sudah ada
+          connect: { id: nutrition_fact_id },
         },
       },
     });
@@ -162,6 +162,14 @@ class ProductRepository {
 
   async findAllCategoryProduct() {
     return prisma.categoryProduct.findMany();
+  }
+
+  async deleteProductById(productId) {
+    return prisma.product.delete({
+      where: {
+        id: parseInt(productId),
+      },
+    });
   }
 }
 

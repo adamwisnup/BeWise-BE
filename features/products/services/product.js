@@ -314,5 +314,17 @@ class ProductService {
 
     return { categories };
   }
+
+  async deleteProductById(productId) {
+    const product = await ProductRepository.deleteProductById(productId);
+
+    if (!product) {
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return product;
+  }
 }
 module.exports = new ProductService();
