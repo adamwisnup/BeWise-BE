@@ -84,25 +84,6 @@ class ProductController {
     }
   }
 
-  async deleteProduct(req, res) {
-    try {
-      const { id } = req.params;
-      const { message } = await ProductService.deleteProduct(id);
-
-      return res.json({
-        status: true,
-        message,
-      });
-    } catch (error) {
-      const statusCode = error.statusCode || 500;
-      return res.status(statusCode).json({
-        status: false,
-        message: error.message,
-        data: null,
-      });
-    }
-  }
-
   async searchProducts(req, res) {
     try {
       const { name, page = 1, limit = 10 } = req.query;
@@ -280,6 +261,28 @@ class ProductController {
       });
     } catch (error) {
       return res.status(error.statusCode || 500).json({
+        status: false,
+        message: error.message,
+        data: null,
+      });
+    }
+  }
+
+  async deleteProduct(req, res) {
+    try {
+      const { id } = req.params;
+     const productId = parseInt(id, 10);
+
+     const deletedProduct = await ProductService.deleteProductById(productId);
+
+      return res.json({
+        status: true,
+        message: "Produk berhasil dihapus",
+        data: null,
+      });
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      return res.status(statusCode).json({
         status: false,
         message: error.message,
         data: null,

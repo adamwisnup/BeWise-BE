@@ -76,11 +76,11 @@ class ProductService {
 
     const products = await ProductRepository.searchProducts(name, page, limit);
 
-    if (products.length === 0) {
-      const error = new Error("Produk tidak ditemukan");
-      error.statusCode = 404;
-      throw error;
-    }
+    // if (products.length === 0) {
+    //   const error = new Error("Produk tidak ditemukan");
+    //   error.statusCode = 404;
+    //   throw error;
+    // }
 
     return products;
   }
@@ -313,6 +313,18 @@ class ProductService {
     const categories = await ProductRepository.findAllCategoryProduct();
 
     return { categories };
+  }
+
+  async deleteProductById(productId) {
+    const product = await ProductRepository.deleteProductById(productId);
+
+    if (!product) {
+      const error = new Error("Produk tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return product;
   }
 }
 module.exports = new ProductService();
