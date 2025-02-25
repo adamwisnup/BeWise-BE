@@ -43,7 +43,15 @@ class ProductController {
       const limitNumber = parseInt(limit, 10);
       const { category } = req.params;
       const categoryProductId = parseInt(category);
-      const { products } = await ProductService.findProductByCategory(
+
+      const {
+        products,
+        totalProducts,
+        totalPages,
+        currentPage,
+        hasNextPage,
+        hasPreviousPage,
+      } = await ProductService.findProductByCategory(
         categoryProductId,
         pageNumber,
         limitNumber
@@ -60,7 +68,15 @@ class ProductController {
       return res.json({
         status: true,
         message: "Data produk berhasil dimuat",
-        data: { products, page: pageNumber, limit: limitNumber },
+        data: {
+          products,
+          page: currentPage,
+          limit: limitNumber,
+          totalProducts,
+          totalPages,
+          hasNextPage,
+          hasPreviousPage,
+        },
       });
     } catch (error) {
       const statusCode = error.statusCode || 500;

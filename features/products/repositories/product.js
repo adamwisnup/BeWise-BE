@@ -18,7 +18,7 @@ class ProductRepository {
   }
 
   async findProductByCategory(categoryProductId, page, limit) {
-    const skip = (page - 1) * limit;
+    const skip = Math.max((page - 1) * limit, 0);
     return await prisma.product.findMany({
       skip,
       take: limit,
