@@ -32,19 +32,39 @@ class ProductService {
   }
 
   async findProductByCategory(categoryProductId, page = 1, limit = 10) {
+    const validPage = Math.max(parseInt(page, 10) || 1, 1);
+    const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
+
+    const totalProducts = await ProductRepository.countTotalProducts();
+    const totalPages = Math.ceil(totalProducts / validLimit);
+    const currentPage = Math.min(validPage, totalPages);
+
+    const skip = Math.max((currentPage - 1) * validLimit, 0);
+
     const products = await ProductRepository.findProductByCategory(
       categoryProductId,
-      page,
-      limit
+      skip,
+      validLimit
     );
 
-    if (!products) {
-      const error = new Error("Produk tidak ditemukan");
-      error.statusCode = 404;
-      throw error;
-    }
+    // if (!products) {
+    //   const error = new Error("Produk tidak ditemukan");
+    //   error.statusCode = 404;
+    //   throw error;
+    // }
 
-    return { products };
+    const productsWithQuantity = products.map((product) => ({
+      ...product,
+    }));
+
+    return {
+      products: productsWithQuantity,
+      totalProducts,
+      totalPages,
+      currentPage,
+      hasNextPage: currentPage < totalPages,
+      hasPreviousPage: currentPage > 1,
+    };
   }
 
   async findProductById(productId) {
