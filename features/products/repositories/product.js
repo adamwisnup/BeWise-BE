@@ -2,7 +2,8 @@ const prisma = require("../../../configs/config");
 
 class ProductRepository {
   async findAllProducts(page, limit) {
-    const skip = (page - 1) * limit;
+    const skip = Math.max((page - 1) * limit, 0);
+
     return await prisma.product.findMany({
       skip,
       take: limit,
@@ -10,6 +11,10 @@ class ProductRepository {
         label: true,
       },
     });
+  }
+
+  async countTotalProducts() {
+    return await prisma.product.count();
   }
 
   async findProductByCategory(categoryProductId, page, limit) {
@@ -144,7 +149,7 @@ class ProductRepository {
       data: {
         ...rest,
         label: {
-          connect: { id: label_id }, 
+          connect: { id: label_id },
         },
         categoryProduct: {
           connect: { id: category_product_id },

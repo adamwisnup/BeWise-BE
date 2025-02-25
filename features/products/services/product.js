@@ -6,9 +6,29 @@ const path = require("path");
 
 class ProductService {
   async findAllProducts(page = 1, limit = 10) {
-    const products = await ProductRepository.findAllProducts(page, limit);
+    const validPage = Math.max(parseInt(page, 10) || 1, 1);
+    const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
-    return { products };
+    const totalProducts = await ProductRepository.countTotalProducts();
+    const totalPages = Math.ceil(totalProducts / validLimit);
+    const currentPage = Math.min(validPage, totalPages);
+
+    const skip = Math.max((currentPage - 1) * validLimit, 0);
+
+    const products = await ProductRepository.findAllProducts(skip, validLimit);
+
+    const productsWithQuantity = products.map((product) => ({
+      ...product,
+    }));
+
+    return {
+      products: productsWithQuantity,
+      totalProducts,
+      totalPages,
+      currentPage,
+      hasNextPage: currentPage < totalPages,
+      hasPreviousPage: currentPage > 1,
+    };
   }
 
   async findProductByCategory(categoryProductId, page = 1, limit = 10) {
@@ -75,12 +95,6 @@ class ProductService {
     }
 
     const products = await ProductRepository.searchProducts(name, page, limit);
-
-    // if (products.length === 0) {
-    //   const error = new Error("Produk tidak ditemukan");
-    //   error.statusCode = 404;
-    //   throw error;
-    // }
 
     return products;
   }

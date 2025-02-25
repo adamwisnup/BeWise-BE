@@ -4,24 +4,33 @@ class ProductController {
   async getAllProducts(req, res) {
     try {
       const { page = 1, limit = 10 } = req.query;
-      const pageNumber = parseInt(page, 10);
-      const limitNumber = parseInt(limit, 10);
 
-      const { products } = await ProductService.findAllProducts(
-        pageNumber,
-        limitNumber
-      );
+      const {
+        products,
+        totalProducts,
+        totalPages,
+        currentPage,
+        hasNextPage,
+        hasPreviousPage,
+      } = await ProductService.findAllProducts(page, limit);
 
-      return res.json({
+      return res.status(200).json({
         status: true,
         message: "Data produk berhasil dimuat",
-        data: { products, page: pageNumber, limit: limitNumber },
+        data: {
+          products,
+          page: currentPage,
+          limit: parseInt(limit, 10) || 10,
+          totalProducts,
+          totalPages,
+          hasNextPage,
+          hasPreviousPage,
+        },
       });
     } catch (error) {
-      const statusCode = error.statusCode || 500;
-      return res.status(statusCode).json({
+      return res.status(500).json({
         status: false,
-        message: error.message,
+        message: error.message || "Terjadi kesalahan",
         data: null,
       });
     }
@@ -271,9 +280,9 @@ class ProductController {
   async deleteProduct(req, res) {
     try {
       const { id } = req.params;
-     const productId = parseInt(id, 10);
+      const productId = parseInt(id, 10);
 
-     const deletedProduct = await ProductService.deleteProductById(productId);
+      const deletedProduct = await ProductService.deleteProductById(productId);
 
       return res.json({
         status: true,

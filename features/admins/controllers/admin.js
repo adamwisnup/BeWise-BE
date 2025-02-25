@@ -41,18 +41,31 @@ class AdminController {
 
   async findAllProducts(req, res) {
     try {
-      const { page, limit } = req.query;
+      const { page = 1, limit = 10 } = req.query;
 
-      const { products } = await AdminService.findAllProducts(page, limit);
+      const {
+        products,
+        totalProducts,
+        totalPages,
+        currentPage,
+        hasNextPage,
+        hasPreviousPage,
+      } = await AdminService.findAllProducts(page, limit);
 
       return res.status(200).json({
         status: true,
         message: "Berhasil mendapatkan data produk",
-        data: products,
+        data: {
+          products,
+          page: currentPage,
+          limit: parseInt(limit, 10) || 10,
+          totalProducts,
+          totalPages,
+          hasNextPage,
+          hasPreviousPage,
+        },
       });
     } catch (error) {
-      console.error("Error saat findAllProducts:", error);
-
       return res.status(500).json({
         status: false,
         message: error.message || "Terjadi kesalahan",

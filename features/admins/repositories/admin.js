@@ -8,7 +8,7 @@ class AdminRepository {
   }
 
   async findAllProducts(page, limit) {
-    const skip = (page - 1) * limit;
+    const skip = Math.max((page - 1) * limit, 0);
     return await prisma.product.findMany({
       skip,
       take: limit,
@@ -18,6 +18,10 @@ class AdminRepository {
         categoryProduct: true,
       },
     });
+  }
+
+  async countTotalProducts() {
+    return await prisma.product.count();
   }
 
   async findProductByCategory(categoryProductId, page, limit) {
