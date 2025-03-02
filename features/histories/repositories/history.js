@@ -13,7 +13,8 @@ class HistoryRepository {
   }
 
   async findAllHistories(userId, page, limit) {
-    const skip = (page - 1) * limit;
+    const skip = Math.max((page - 1) * limit, 0);
+
     return await prisma.history.findMany({
       skip,
       take: limit,
@@ -29,6 +30,14 @@ class HistoryRepository {
       },
       orderBy: {
         created_at: "desc",
+      },
+    });
+  }
+
+  async countTotalHistories(userId) {
+    return await prisma.history.count({
+      where: {
+        user_id: userId,
       },
     });
   }

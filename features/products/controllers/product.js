@@ -314,6 +314,51 @@ class ProductController {
       });
     }
   }
+
+  async updateFoodProduct(req, res) {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const avatar = req.file;
+
+      const updatedProduct = await ProductService.updateFoodProduct(id, data, avatar);
+      console.log("Updated product:", updatedProduct);
+      
+
+      return res.status(200).json({
+        status: true,
+        message: "Produk berhasil diperbarui",
+        data: updatedProduct,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: error.message || "Terjadi kesalahan",
+        data: null,
+      });
+    }
+  }
+
+  async updateBeverageProduct(req, res) {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const avatar = req.file;
+
+      const updatedProduct = await ProductService.updateBeverageProduct(id, data, avatar);
+
+      return res.status(200).json({
+        status: "success",
+        message: "Produk berhasil diperbarui",
+        data: updatedProduct,
+      });
+    } catch (error) {
+      return res.status(400).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  }
 }
 
 module.exports = new ProductController();
