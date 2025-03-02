@@ -47,12 +47,6 @@ class ProductService {
       validLimit
     );
 
-    // if (!products) {
-    //   const error = new Error("Produk tidak ditemukan");
-    //   error.statusCode = 404;
-    //   throw error;
-    // }
-
     const productsWithQuantity = products.map((product) => ({
       ...product,
     }));
@@ -78,20 +72,6 @@ class ProductService {
 
     return { product };
   }
-
-  //   async updateProduct(productId, data) {
-  //     const product = await ProductRepository.findProductById(productId);
-
-  //     if (!product) {
-  //       throw new Error("Produk tidak ditemukan");
-  //     }
-
-  //     const updatedProduct = await ProductRepository.updateProduct(productId, {
-  //       ...data,
-  //     });
-
-  //     return { updatedProduct };
-  //   }
 
   async deleteProduct(productId) {
     const product = await ProductRepository.findProductById(productId);
@@ -175,41 +155,7 @@ class ProductService {
 
       const fileBase64 = avatar.buffer.toString("base64");
 
-      let folderPath;
-      switch (parseInt(category_product_id, 10)) {
-        case 1:
-          folderPath = `BeWise/Products/Kopi`;
-          break;
-        case 2:
-          folderPath = `BeWise/Products/Teh`;
-          break;
-        case 3:
-          folderPath = `BeWise/Products/Isotonik`;
-          break;
-        case 4:
-          folderPath = `BeWise/Products/Jus`;
-          break;
-        case 5:
-          folderPath = `BeWise/Products/Air_Mineral`;
-          break;
-        case 6:
-          folderPath = `BeWise/Products/Susu`;
-          break;
-        case 7:
-          folderPath = `BeWise/Products/Roti`;
-          break;
-        case 8:
-          folderPath = `BeWise/Products/Mie`;
-          break;
-        case 9:
-          folderPath = `BeWise/Products/Frozen_Food`;
-          break;
-        case 10:
-          folderPath = `BeWise/Products/Wafer_Biskuit`;
-          break;
-        default:
-          folderPath = `BeWise/Products/Other`;
-      }
+      const folderPath = `BeWise/Products/${parseInt(category_product_id, 10)}`;
 
       const response = await imagekit.upload({
         fileName: Date.now() + path.extname(avatar.originalname),
@@ -268,41 +214,7 @@ class ProductService {
 
       const fileBase64 = avatar.buffer.toString("base64");
 
-      let folderPath;
-      switch (parseInt(category_product_id, 10)) {
-        case 1:
-          folderPath = `BeWise/Products/Kopi`;
-          break;
-        case 2:
-          folderPath = `BeWise/Products/Teh`;
-          break;
-        case 3:
-          folderPath = `BeWise/Products/Isotonik`;
-          break;
-        case 4:
-          folderPath = `BeWise/Products/Jus`;
-          break;
-        case 5:
-          folderPath = `BeWise/Products/Air_Mineral`;
-          break;
-        case 6:
-          folderPath = `BeWise/Products/Susu`;
-          break;
-        case 7:
-          folderPath = `BeWise/Products/Roti`;
-          break;
-        case 8:
-          folderPath = `BeWise/Products/Mie`;
-          break;
-        case 9:
-          folderPath = `BeWise/Products/Frozen_Food`;
-          break;
-        case 10:
-          folderPath = `BeWise/Products/Wafer_Biskuit`;
-          break;
-        default:
-          folderPath = `BeWise/Products/Other`;
-      }
+      const folderPath = `BeWise/Products/${parseInt(category_product_id, 10)}`;
 
       const response = await imagekit.upload({
         fileName: Date.now() + path.extname(avatar.originalname),
@@ -359,6 +271,129 @@ class ProductService {
     }
 
     return product;
+  }
+
+  async updateFoodProduct(productId, data, avatar) {
+    try {
+        const existingProduct = await ProductRepository.findProductById(productId);
+        if (!existingProduct) {
+            throw new Error("Produk tidak ditemukan!");
+        }
+
+        let photoUrl = existingProduct.photo;
+
+        if (avatar) {
+            const fileBase64 = avatar.buffer.toString("base64");
+            const folderPath = `BeWise/Products/${existingProduct.category_product_id || "Other"}`;
+
+            const response = await imagekit.upload({
+                fileName: Date.now() + path.extname(avatar.originalname),
+                file: fileBase64,
+                folder: folderPath,
+            });
+
+            photoUrl = response.url;
+        }
+
+        let nutri_score = existingProduct.nutri_score;
+        let label_id = existingProduct.label_id;
+        let nutrition_fact_id = existingProduct.nutrition_fact_id;
+
+        if (data.nutritionFact) {
+            const mlResponse = await axios.post(
+                "https://ml-bewise.up.railway.app/calculate-nutri-score/food",
+                [{ nutritionFact: data.nutritionFact }]
+            );
+
+            ({ category: label_id, nutri_score } = mlResponse.data[0]);
+            if (nutrition_fact_id) {
+                await ProductRepository.updateNutritionFact(
+                    existingProduct.nutrition_fact_id,
+                    data.nutritionFact
+                );
+            }
+        }
+
+        const updateData = {
+            name: data.name || existingProduct.name,
+            brand: data.brand || existingProduct.brand,
+            photo: photoUrl,
+            category_product_id: data.category_product_id ? parseInt(data.category_product_id, 10) : existingProduct.category_product_id,
+            barcode: data.barcode || existingProduct.barcode,
+            price_a: data.price_a ? parseInt(data.price_a) : existingProduct.price_a,
+            price_b: data.price_b ? parseInt(data.price_b) : existingProduct.price_b,
+            nutri_score: data.nutri_score ? parseFloat(data.nutri_score) : nutri_score,
+            label_id: parseInt(label_id, 10),
+        };
+
+        const updatedProduct = await ProductRepository.updateProduct(productId, updateData);
+
+        return updatedProduct;
+    } catch (error) {
+        throw new Error("Gagal memperbarui produk: " + error.message);
+    }
+}
+
+
+  async updateBeverageProduct(productId, data, avatar) {
+    try {
+     const existingProduct = await ProductRepository.findProductById(productId);
+      if (!existingProduct) {
+        throw new Error("Produk tidak ditemukan!");
+      }
+
+      let photoUrl = existingProduct.photo;
+
+      if (avatar) {
+        const fileBase64 = avatar.buffer.toString("base64");
+        const folderPath = `BeWise/Products/${category_product_id || "Other"}`;
+
+        const response = await imagekit.upload({
+          fileName: Date.now() + path.extname(avatar.originalname),
+          file: fileBase64,
+          folder: folderPath,
+        });
+
+        photoUrl = response.url;
+      }
+
+      let nutri_score = existingProduct.nutri_score;
+      let label_id = existingProduct.label_id;
+      let nutrition_fact_id = existingProduct.nutrition_fact_id;
+
+      if (data.nutritionFact) {
+        const mlResponse = await axios.post(
+          "https://ml-bewise.up.railway.app/calculate-nutri-score/beverages",
+          [{ nutritionFact: data.nutritionFact }]
+        );
+
+          ({ category: label_id, nutri_score } = mlResponse.data[0]);
+            if (nutrition_fact_id) {
+                await ProductRepository.updateNutritionFact(
+                    existingProduct.nutrition_fact_id,
+                    data.nutritionFact
+                );
+            }
+      }
+
+      const updateData = {
+        name: data.name || existingProduct.name,
+        brand: data.brand || existingProduct.brand,
+        photo: photoUrl,
+        category_product_id: parseInt(data.category_product_id, 10) || existingProduct.category_product_id,
+        barcode: data.barcode || existingProduct.barcode,
+        price_a: parseFloat(data.price_a) || existingProduct.price_a,
+        price_b: parseFloat(data.price_b) || existingProduct.price_b,
+        nutri_score: data.nutri_score ? parseFloat(data.nutri_score) : nutri_score,
+        label_id: parseInt(label_id, 10),
+      };
+
+      const updatedProduct = await ProductRepository.updateProduct(productId, updateData);
+
+      return updatedProduct;
+    } catch (error) {
+      throw new Error("Gagal memperbarui produk: " + error.message);
+    }
   }
 }
 module.exports = new ProductService();

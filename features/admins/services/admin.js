@@ -123,20 +123,6 @@ class AdminService {
     return product;
   }
 
-  // async updateProduct(productId, data) {
-  //   const product = await AdminRepository.findProductById(productId);
-
-  //   if (!product) {
-  //     throw new Error("Produk tidak ditemukan");
-  //   }
-
-  //   const updatedProduct = await AdminRepository.updateProduct(productId, {
-  //     ...data,
-  //   });
-
-  //   return { updatedProduct };
-  // }
-
   async addProduct(productData) {
     const {
       name,
@@ -149,12 +135,10 @@ class AdminService {
       price_b,
     } = productData;
 
-    // Simpan Nutrition Fact
     const nutritionFact = await AdminRepository.createNutritionFact(
       nutrition_fact_data
     );
 
-    // Simpan Produk Awal
     const product = await AdminRepository.createProduct({
       name,
       brand,
@@ -166,20 +150,17 @@ class AdminService {
       price_b,
     });
 
-    // Hit API Machine Learning untuk mendapatkan NutriScore dan Label
     const mlResponse = await axios.post(
       "https://ml-api.example.com/nutri-score",
       nutrition_fact_data
     );
     const { nutri_score, label_name, label_link } = mlResponse.data;
 
-    // Cari atau Buat Label
     const label = await AdminRepository.findOrCreateLabel(
       label_name,
       label_link
     );
 
-    // Update Produk dengan NutriScore dan Label
     await AdminRepository.updateProductWithNutriScoreAndLabel(
       product.id,
       nutri_score,

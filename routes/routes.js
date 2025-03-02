@@ -11,9 +11,6 @@ const HistoryController = require("../features/histories/controllers/history");
 const SubscriptionController = require("../features/subscription/controllers/subscription");
 const AdminController = require("../features/admins/controllers/admin");
 
-// TESTING
-router.get("/users", UserController.getAllUser);
-
 // AUTHENTICATION
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
@@ -34,7 +31,6 @@ router.get(
   }),
   UserController.loginOauth
 );
-// router.get("/reset-password-test", UserController.resetPasswordTestPage);
 
 // USER PROFILE
 router.patch(
@@ -65,12 +61,18 @@ router.post(
   image.single("photo"),
   ProductController.addFoodProduct
 );
-// router.post(
-//   "/products",
-//   restrict,
-//   image.single("photo"),
-//   ProductController.addProduct
-// );
+router.patch(
+  "/products/:id/foods",
+  restrict,
+  image.single("photo"),
+  ProductController.updateFoodProduct
+);
+router.patch(
+  "/products/:id/beverages",
+  restrict,
+  image.single("photo"),
+  ProductController.updateBeverageProduct
+);
 router.get("/products", restrict, ProductController.getAllProducts);
 router.post("/products/scan", restrict, ProductController.scanProduct);
 router.get("/products/top-choices", restrict, ProductController.getTopChoices);
@@ -140,11 +142,6 @@ router.post(
   "/subscriptions/booking/notification",
   SubscriptionController.handleMidtransNotification
 );
-// // Routing untuk menampilkan form booking
-// router.get("/booking", SubscriptionController.getSubscriptions);
-
-// Routing untuk melakukan booking
-router.post("/booking", SubscriptionController.createBooking);
 
 // ADMIN
 router.post("/admin/login", AdminController.login);

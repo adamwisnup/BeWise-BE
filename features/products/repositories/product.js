@@ -169,11 +169,23 @@ class ProductRepository {
     return prisma.categoryProduct.findMany();
   }
 
+ async updateProduct(productId, updateData) {
+    return await prisma.product.update({
+      where: { id: parseInt(productId, 10) },
+      data: updateData,
+    });
+  }
+
   async deleteProductById(productId) {
-    return prisma.product.delete({
-      where: {
-        id: parseInt(productId),
-      },
+    return await prisma.product.delete({
+      where: { id: parseInt(productId, 10) },
+    });
+  }
+
+  async updateNutritionFact(id, nutritionFact) {
+    return prisma.nutritionFact.update({
+      where: { id: parseInt(id, 10) },
+      data: nutritionFact,
     });
   }
 }
