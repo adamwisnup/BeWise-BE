@@ -4,7 +4,7 @@ class HistoryService {
     const validPage = Math.max(parseInt(page, 10) || 1, 1);
     const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
-    const totalProducts = await ProductRepository.countTotalHistories();
+    const totalProducts = await HistoryRepository.countTotalHistories();
     const totalPages = Math.ceil(totalProducts / validLimit);
     const currentPage = Math.min(validPage, totalPages);
 
