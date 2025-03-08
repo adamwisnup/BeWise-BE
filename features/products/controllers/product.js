@@ -3,61 +3,54 @@ const ProductService = require("../services/product");
 class ProductController {
   async getAllProducts(req, res) {
     try {
-      const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10 } = req.query;
 
-      const {
-        products,
-        totalProducts,
-        totalPages,
-        currentPage,
-        hasNextPage,
-        hasPreviousPage,
-      } = await ProductService.findAllProducts(page, limit);
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
 
-      return res.status(200).json({
-        status: true,
-        message: "Data produk berhasil dimuat",
-        data: {
-          products,
-          page: currentPage,
-          limit: parseInt(limit, 10) || 10,
-          totalProducts,
-          totalPages,
-          hasNextPage,
-          hasPreviousPage,
-        },
-      });
+        const result = await ProductService.findAllProducts(pageNumber, limitNumber);
+
+        return res.status(200).json({
+            status: true,
+            message: "Data produk berhasil dimuat",
+            data: result.products,
+            pagination: {
+                totalData: result.totalData,
+                totalPage: result.totalPage,
+                currentPage: result.currentPage,
+                hasNextPage: result.hasNextPage,
+                hasPreviousPage: result.hasPreviousPage,
+            },
+        });
     } catch (error) {
-      return res.status(500).json({
-        status: false,
-        message: error.message || "Terjadi kesalahan",
-        data: null,
-      });
+        return res.status(500).json({
+            status: false,
+            message: error.message || "Terjadi kesalahan pada server",
+            data: null,
+        });
     }
   }
 
   async getProductByCategory(req, res) {
     try {
       const { page = 1, limit = 10 } = req.query;
-      const pageNumber = parseInt(page, 10);
-      const limitNumber = parseInt(limit, 10);
       const { category } = req.params;
-      const categoryProductId = parseInt(category);
 
-      const {
-        products,
-        totalProducts,
-        totalPages,
-        currentPage,
-        hasNextPage,
-        hasPreviousPage,
-      } = await ProductService.findProductByCategory(
-        categoryProductId,
-        pageNumber,
-        limitNumber
-      );
+      const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+      const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+      const categoryProductId = parseInt(category, 10);
 
-      if (!products || products.length === 0) {
+      if (isNaN(categoryProductId)) {
+        return res.status(400).json({
+          status: false,
+          message: "Kategori produk tidak valid",
+          data: null,
+        });
+      }
+
+      const result = await ProductService.findProductByCategory(categoryProductId, pageNumber, limitNumber);
+
+      if (!result.products.length) {
         return res.status(404).json({
           status: false,
           message: "Produk tidak ditemukan",
@@ -65,24 +58,22 @@ class ProductController {
         });
       }
 
-      return res.json({
+      return res.status(200).json({
         status: true,
         message: "Data produk berhasil dimuat",
-        data: {
-          products,
-          page: currentPage,
-          limit: limitNumber,
-          totalProducts,
-          totalPages,
-          hasNextPage,
-          hasPreviousPage,
+        data: result.products,
+        pagination: {
+          totalProducts: result.totalProducts,
+          totalPages: result.totalPages,
+          currentPage: result.currentPage,
+          hasNextPage: result.hasNextPage,
+          hasPreviousPage: result.hasPreviousPage,
         },
       });
     } catch (error) {
-      const statusCode = error.statusCode || 500;
-      return res.status(statusCode).json({
+      return res.status(500).json({
         status: false,
-        message: error.message,
+        message: error.message || "Terjadi kesalahan",
         data: null,
       });
     }

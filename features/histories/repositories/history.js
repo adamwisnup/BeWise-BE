@@ -12,34 +12,25 @@ class HistoryRepository {
     return history;
   }
 
-  async findAllHistories(userId, page, limit) {
-    const skip = Math.max((page - 1) * limit, 0);
-
-    return await prisma.history.findMany({
-      skip,
-      take: limit,
-      where: {
-        user_id: userId,
-      },
-      include: {
-        product: {
+  async findAllHistories(userId, skip, limit) {
+      return await prisma.history.findMany({
+          skip,
+          take: limit,
+          where: { user_id: userId },
           include: {
-            label: true,
+              product: { include: { label: true } },
           },
-        },
-      },
-      orderBy: {
-        created_at: "desc",
-      },
-    });
+          orderBy: [
+              { created_at: "desc" },
+              { id: "desc" },
+          ],
+      });
   }
 
   async countTotalHistories(userId) {
-    return await prisma.history.count({
-      where: {
-        user_id: userId,
-      },
-    });
+      return await prisma.history.count({
+          where: { user_id: userId },
+      });
   }
 
   async findHistoryById(historyId) {

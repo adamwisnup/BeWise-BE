@@ -10,24 +10,19 @@ class ProductService {
     const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
     const totalProducts = await ProductRepository.countTotalProducts();
-    const totalPages = Math.ceil(totalProducts / validLimit);
+    const totalPages = Math.max(Math.ceil(totalProducts / validLimit), 1);
     const currentPage = Math.min(validPage, totalPages);
-
-    const skip = Math.max((currentPage - 1) * validLimit, 0);
+    const skip = (currentPage - 1) * validLimit;
 
     const products = await ProductRepository.findAllProducts(skip, validLimit);
 
-    const productsWithQuantity = products.map((product) => ({
-      ...product,
-    }));
-
     return {
-      products: productsWithQuantity,
-      totalProducts,
-      totalPages,
-      currentPage,
-      hasNextPage: currentPage < totalPages,
-      hasPreviousPage: currentPage > 1,
+        products,
+        totalData: totalProducts,
+        totalPage: totalPages,
+        currentPage,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1,
     };
   }
 
@@ -35,24 +30,15 @@ class ProductService {
     const validPage = Math.max(parseInt(page, 10) || 1, 1);
     const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
-    const totalProducts = await ProductRepository.countTotalProducts();
-    const totalPages = Math.ceil(totalProducts / validLimit);
+    const totalProducts = await ProductRepository.countProductsByCategory(categoryProductId);
+    const totalPages = Math.max(Math.ceil(totalProducts / validLimit), 1);
     const currentPage = Math.min(validPage, totalPages);
+    const skip = (currentPage - 1) * validLimit;
 
-    const skip = Math.max((currentPage - 1) * validLimit, 0);
-
-    const products = await ProductRepository.findProductByCategory(
-      categoryProductId,
-      skip,
-      validLimit
-    );
-
-    const productsWithQuantity = products.map((product) => ({
-      ...product,
-    }));
+    const products = await ProductRepository.findProductByCategory(categoryProductId, skip, validLimit);
 
     return {
-      products: productsWithQuantity,
+      products,
       totalProducts,
       totalPages,
       currentPage,
@@ -191,7 +177,6 @@ class ProductService {
 
       return product;
     } catch (error) {
-      console.error("Error dalam addFoodProduct:", error);
       throw new Error("Gagal menambahkan produk: " + error.message);
     }
   }
@@ -250,7 +235,6 @@ class ProductService {
 
       return product;
     } catch (error) {
-      console.error("Error dalam addFoodProduct:", error);
       throw new Error("Gagal menambahkan produk: " + error.message);
     }
   }
@@ -281,13 +265,12 @@ class ProductService {
         }
 
         let photoUrl = existingProduct.photo;
-
         if (avatar) {
             const fileBase64 = avatar.buffer.toString("base64");
             const folderPath = `BeWise/Products/${existingProduct.category_product_id || "Other"}`;
 
             const response = await imagekit.upload({
-                fileName: Date.now() + path.extname(avatar.originalname),
+                fileName: `${Date.now()}${path.extname(avatar.originalname)}`,
                 file: fileBase64,
                 folder: folderPath,
             });
@@ -295,45 +278,59 @@ class ProductService {
             photoUrl = response.url;
         }
 
-        let nutri_score = existingProduct.nutri_score;
-        let label_id = existingProduct.label_id;
-        let nutrition_fact_id = existingProduct.nutrition_fact_id;
+        let { nutri_score, label_id, nutrition_fact_id } = existingProduct;
 
         if (data.nutritionFact) {
+            if (nutrition_fact_id) {
+                await ProductRepository.updateNutritionFact(nutrition_fact_id, {
+                    energy: data.nutritionFact.energy ?? existingProduct.energy,
+                    saturated_fat: data.nutritionFact.saturated_fat ?? existingProduct.saturated_fat,
+                    sugar: data.nutritionFact.sugar ?? existingProduct.sugar,
+                    sodium: data.nutritionFact.sodium ?? existingProduct.sodium,
+                    protein: data.nutritionFact.protein ?? existingProduct.protein,
+                    fiber: data.nutritionFact.fiber ?? existingProduct.fiber,
+                    fruit_vegetable: data.nutritionFact.fruit_vegetable ?? existingProduct.fruit_vegetable,
+                });
+            } else {
+                const newNutritionFact = await ProductRepository.createNutritionFact({
+                    energy: data.nutritionFact.energy || 0,
+                    saturated_fat: data.nutritionFact.saturated_fat || 0,
+                    sugar: data.nutritionFact.sugar || 0,
+                    sodium: data.nutritionFact.sodium || 0,
+                    protein: data.nutritionFact.protein || 0,
+                    fiber: data.nutritionFact.fiber || 0,
+                    fruit_vegetable: data.nutritionFact.fruit_vegetable || 0,
+                });
+                nutrition_fact_id = newNutritionFact.id;
+            }
+
             const mlResponse = await axios.post(
                 "https://ml-bewise.up.railway.app/calculate-nutri-score/food",
                 [{ nutritionFact: data.nutritionFact }]
             );
 
-            ({ category: label_id, nutri_score } = mlResponse.data[0]);
-            if (nutrition_fact_id) {
-                await ProductRepository.updateNutritionFact(
-                    existingProduct.nutrition_fact_id,
-                    data.nutritionFact
-                );
-            }
+            nutri_score = mlResponse.data[0].nutri_score;
+            label_id = parseInt(mlResponse.data[0].category, 10);
         }
 
         const updateData = {
-            name: data.name || existingProduct.name,
-            brand: data.brand || existingProduct.brand,
+            name: data.name ?? existingProduct.name,
+            brand: data.brand ?? existingProduct.brand,
             photo: photoUrl,
             category_product_id: data.category_product_id ? parseInt(data.category_product_id, 10) : existingProduct.category_product_id,
-            barcode: data.barcode || existingProduct.barcode,
-            price_a: data.price_a ? parseInt(data.price_a) : existingProduct.price_a,
-            price_b: data.price_b ? parseInt(data.price_b) : existingProduct.price_b,
-            nutri_score: data.nutri_score ? parseFloat(data.nutri_score) : nutri_score,
-            label_id: parseInt(label_id, 10),
+            barcode: data.barcode ?? existingProduct.barcode,
+            price_a: data.price_a ? parseFloat(data.price_a) : existingProduct.price_a,
+            price_b: data.price_b ? parseFloat(data.price_b) : existingProduct.price_b,
+            nutri_score,
+            label_id,
+            nutrition_fact_id,
         };
 
-        const updatedProduct = await ProductRepository.updateProduct(productId, updateData);
-
-        return updatedProduct;
+        return await ProductRepository.updateProduct(productId, updateData);
     } catch (error) {
-        throw new Error("Gagal memperbarui produk: " + error.message);
+        throw new Error(`Gagal memperbarui produk: ${error.message}`);
     }
-}
-
+  }
 
   async updateBeverageProduct(productId, data, avatar) {
     try {
