@@ -2,30 +2,34 @@ const HistoryService = require("../services/history");
 
 class HistoryController {
   async getAllHistories(req, res) {
-    try {
-      const { userId } = req.user;
-      const { page = 1, limit = 10 } = req.query;
-      const pageNumber = parseInt(page, 10);
-      const limitNumber = parseInt(limit, 10);
+      try {
+          const { userId } = req.user;
+          const { page = 1, limit = 10 } = req.query;
 
-      const histories = await HistoryService.findAllHistories(
-        userId,
-        pageNumber,
-        limitNumber
-      );
+          const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+          const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
 
-      return res.status(200).json({
-        status: true,
-        message: "Riwayat berhasil dimuat",
-        data: { histories, page: pageNumber, limit: limitNumber },
-      });
-    } catch (error) {
-      return res.status(500).json({
-        status: false,
-        message: error.message || "Terjadi kesalahan pada server",
-        data: null,
-      });
-    }
+          const result = await HistoryService.findAllHistories(userId, pageNumber, limitNumber);
+
+          return res.status(200).json({
+              status: true,
+              message: "Riwayat berhasil dimuat",
+              data: result.histories,
+              pagination: { totalData: result.totalData,
+                  totalPage: result.totalPage,
+                  currentPage: result.currentPage,
+                  hasNextPage: result.hasNextPage,
+                  hasPreviousPage: result.hasPreviousPage,
+                 
+              },
+          });
+      } catch (error) {
+          return res.status(500).json({
+              status: false,
+              message: error.message || "Terjadi kesalahan pada server",
+              data: null,
+          });
+      }
   }
 
   async getHistoryById(req, res) {

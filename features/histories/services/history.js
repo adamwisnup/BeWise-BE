@@ -4,31 +4,21 @@ class HistoryService {
     const validPage = Math.max(parseInt(page, 10) || 1, 1);
     const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
-    const totalProducts = await HistoryRepository.countTotalHistories();
-    const totalPages = Math.ceil(totalProducts / validLimit);
+    const totalHistories = await HistoryRepository.countTotalHistories(userId);
+    const totalPages = Math.max(Math.ceil(totalHistories / validLimit), 1);
     const currentPage = Math.min(validPage, totalPages);
 
-    const skip = Math.max((currentPage - 1) * validLimit, 0);
+    const skip = (currentPage - 1) * validLimit;
 
-    const histories = await HistoryRepository.findAllHistories(
-      userId,
-      skip,
-      validLimit
-    );
-
-    const historiesWithQuantity = histories.map((history) => {
-      return {
-        ...history,
-      };
-    });
+    const histories = await HistoryRepository.findAllHistories(userId, skip, validLimit);
 
     return {
-      histories: historiesWithQuantity,
-        totalData: totalProducts,
-        totalPage: totalPages,
-        currentPage,
-        hasNextPage: currentPage < totalPages,
-        hasPreviousPage: currentPage > 1,
+      histories,
+      totalData: totalHistories,
+      totalPage: totalPages,
+      currentPage,
+      hasNextPage: currentPage < totalPages,
+      hasPreviousPage: currentPage > 1,
     };
   }
 

@@ -1,15 +1,14 @@
 const prisma = require("../../../configs/config");
 
 class ProductRepository {
-  async findAllProducts(page, limit) {
-    const skip = Math.max((page - 1) * limit, 0);
-
+  async findAllProducts(skip, limit) {
     return await prisma.product.findMany({
-      skip,
-      take: limit,
-      include: {
-        label: true,
-      },
+        skip,
+        take: limit,
+        include: {
+            label: true,
+        },
+        orderBy: { id: "asc" },
     });
   }
 
@@ -17,17 +16,18 @@ class ProductRepository {
     return await prisma.product.count();
   }
 
-  async findProductByCategory(categoryProductId, page, limit) {
-    const skip = Math.max((page - 1) * limit, 0);
+ async findProductByCategory(categoryProductId, skip, limit) {
     return await prisma.product.findMany({
+      where: { category_product_id: categoryProductId },
       skip,
       take: limit,
-      where: {
-        category_product_id: categoryProductId,
-      },
-      include: {
-        label: true,
-      },
+      include: { label: true },
+    });
+  }
+
+  async countProductsByCategory(categoryProductId) {
+    return await prisma.product.count({
+      where: { category_product_id: categoryProductId },
     });
   }
 
