@@ -81,6 +81,35 @@ class HistoryController {
       });
     }
   }
+
+  async getProudctHistoryWithRecommendationById(req, res) {
+    try {
+      const { id } = req.params;
+      const historyId = parseInt(id, 10);
+
+      const history = await HistoryService.findHistoryWithRecommendationById(historyId);
+
+      if (!history || history.length === 0) {
+        return res.status(404).json({
+          status: false,
+          message: "Riwayat tidak ditemukan",
+          data: null,
+        });
+      }
+
+      return res.status(200).json({
+        status: true,
+        message: "Riwayat berhasil dimuat",
+        data: history,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: error.message || "Terjadi kesalahan pada server",
+        data: null,
+      });
+    }
+  }
 }
 
 module.exports = new HistoryController();
