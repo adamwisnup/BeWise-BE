@@ -1,4 +1,5 @@
 const HistoryRepository = require("../repositories/history");
+const ProductRepository = require("../../products/repositories/product");
 class HistoryService {
   async findAllHistories(userId, page = 1, limit = 10) {
     const validPage = Math.max(parseInt(page, 10) || 1, 1);
@@ -46,6 +47,25 @@ class HistoryService {
     const deleteHistory = await HistoryRepository.deleteHistory(historyId);
 
     return deleteHistory;
+  }
+
+  async findHistoryWithRecommendationById(historyId) {
+    const history = await HistoryRepository.findHistoryById(historyId);
+
+    if (!history) {
+      const error = new Error("Riwayat tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const { label_id, category_product_id, id: scannedProductId } = history.product;
+    const recommendedProducts = await ProductRepository.findRecommendedProducts(
+      label_id,
+      category_product_id,
+      scannedProductId
+    );
+
+    return { history, recommendedProducts };  
   }
 }
 
