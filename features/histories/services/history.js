@@ -58,14 +58,26 @@ class HistoryService {
       throw error;
     }
 
-    const { label_id, category_product_id, id: scannedProductId } = history.product;
-    const recommendedProducts = await ProductRepository.findRecommendedProducts(
+    if (!history.product) {
+      const error = new Error("Produk pada riwayat tidak ditemukan");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const {
       label_id,
       category_product_id,
-      scannedProductId
-    );
+      id: scannedProductId,
+    } = history.product;
 
-    return { history, recommendedProducts };  
+    const recommendedProducts =
+      await ProductRepository.findRecommendedProducts(
+        label_id,
+        category_product_id,
+        scannedProductId,
+      );
+
+    return { history, recommendedProducts };
   }
 }
 
