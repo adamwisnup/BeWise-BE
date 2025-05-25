@@ -130,6 +130,7 @@ router.delete("/news/:id", restrict, NewsController.deleteNews);
 // HISTORY
 router.get("/histories", restrict, HistoryController.getAllHistories);
 router.get("/histories/:id", restrict, HistoryController.getHistoryById);
+router.get("/histories/recommendation/:id", restrict, HistoryController.getProudctHistoryWithRecommendationById);
 router.delete("/histories/:id", restrict, HistoryController.deleteHistory);
 
 // SUBSCRIPTION
