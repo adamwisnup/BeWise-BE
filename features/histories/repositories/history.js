@@ -36,6 +36,9 @@ class HistoryRepository {
   async findHistoryById(historyId) {
     return await prisma.history.findUnique({
       where: { id: historyId },
+      include: {
+        product: true, 
+      },
     });
   }
 
