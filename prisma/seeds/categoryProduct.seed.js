@@ -10,7 +10,7 @@ const seedCategoryProducts = async () => {
       },
       {
         id: 2,
-        name: "Wafer & Biskuit",
+        name: "Biskuit",
         type: "FOOD",
       },
       {
@@ -20,12 +20,12 @@ const seedCategoryProducts = async () => {
       },
       {
         id: 4,
-        name: "Mie",
+        name: "Snack",
         type: "FOOD",
       },
       {
         id: 5,
-        name: "Snack",
+        name: "Mie",
         type: "FOOD",
       },
       {
@@ -45,7 +45,7 @@ const seedCategoryProducts = async () => {
       },
       {
         id: 9,
-        name: "Yogurt",
+        name: "Yoghurt",
         type: "BEVERAGE",
       },
       {
