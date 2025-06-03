@@ -214,7 +214,7 @@ class ProductService {
         [{ nutritionFact }]
       );
 
-      const { label_id, nutri_score } = mlResponse.data[0];
+      const { category: label_id, nutri_score } = mlResponse.data[0];
 
       const nutritionFactRecord = await ProductRepository.createNutritionFact(
         nutritionFact
