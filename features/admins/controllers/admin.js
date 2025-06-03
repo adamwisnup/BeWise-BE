@@ -1,4 +1,5 @@
 const AdminService = require("../services/admin");
+const ProductService = require("../../products/services/product");
 
 class AdminController {
   async login(req, res) {
@@ -43,27 +44,22 @@ class AdminController {
     try {
       const { page = 1, limit = 10 } = req.query;
 
-      const {
-        products,
-        totalProducts,
-        totalPages,
-        currentPage,
-        hasNextPage,
-        hasPreviousPage,
-      } = await AdminService.findAllProducts(page, limit);
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
 
-      return res.status(200).json({
-        status: true,
-        message: "Berhasil mendapatkan data produk",
-        data: {
-          products,
-          page: currentPage,
-          limit: parseInt(limit, 10) || 10,
-          totalProducts,
-          totalPages,
-          hasNextPage,
-          hasPreviousPage,
-        },
+        const result = await ProductService.findAllProducts(pageNumber, limitNumber);
+
+        return res.status(200).json({
+          status: true,
+          message: "Data produk berhasil dimuat",
+          data: result.products,
+          pagination: {
+              totalData: result.totalData,
+              totalPage: result.totalPage,
+              currentPage: result.currentPage,
+              hasNextPage: result.hasNextPage,
+              hasPreviousPage: result.hasPreviousPage,
+          },
       });
     } catch (error) {
       return res.status(500).json({

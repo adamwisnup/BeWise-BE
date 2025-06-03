@@ -1,5 +1,4 @@
 const ProductRepository = require("../repositories/product");
-const ProductService = require("../../products/services/product");
 const HistoryRepository = require("../../histories/repositories/history");
 const axios = require("axios");
 const imagekit = require("../../../libs/imagekit");
@@ -7,33 +6,24 @@ const path = require("path");
 
 class ProductService {
   async findAllProducts(page = 1, limit = 10) {
-    try {
-    const { page = 1, limit = 10 } = req.query;
+    const validPage = Math.max(parseInt(page, 10) || 1, 1);
+    const validLimit = Math.max(parseInt(limit, 10) || 10, 1);
 
-    const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
-    const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+    const totalProducts = await ProductRepository.countTotalProducts();
+    const totalPages = Math.max(Math.ceil(totalProducts / validLimit), 1);
+    const currentPage = Math.min(validPage, totalPages);
+    const skip = (currentPage - 1) * validLimit;
 
-    const result = await ProductService.findAllProducts(pageNumber, limitNumber);
+    const products = await ProductRepository.findAllProducts(skip, validLimit);
 
-    return res.status(200).json({
-      status: true,
-      message: "Data produk berhasil dimuat",
-      data: result.products,
-      pagination: {
-          totalData: result.totalData,
-          totalPage: result.totalPage,
-          currentPage: result.currentPage,
-          hasNextPage: result.hasNextPage,
-          hasPreviousPage: result.hasPreviousPage,
-        },
-      });
-    } catch (error) {
-      return res.status(500).json({
-        status: false,
-        message: error.message || "Terjadi kesalahan pada server",
-        data: null,
-    });
-    }
+    return {
+        products,
+        totalData: totalProducts,
+        totalPage: totalPages,
+        currentPage,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1,
+    };
   }
 
   async findProductByCategory(categoryProductId, page = 1, limit = 10) {
