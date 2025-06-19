@@ -34,7 +34,8 @@
     "path": "^0.12.7",
     "swagger-ui-express": "^5.0.1",
     "uuidv4": "^6.2.13",
-    "yaml": "^2.5.1"
+    "yaml": "^2.5.1",
+    "openai": "^4.80.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4",

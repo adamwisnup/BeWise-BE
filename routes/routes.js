@@ -10,6 +10,8 @@ const NewsController = require("../features/news/controllers/news");
 const HistoryController = require("../features/histories/controllers/history");
 const SubscriptionController = require("../features/subscription/controllers/subscription");
 const AdminController = require("../features/admins/controllers/admin");
+const OCRController = require("../features/ocr/controllers/ocr");
+
 
 // AUTHENTICATION
 router.post("/register", UserController.register);
@@ -84,6 +86,25 @@ router.get(
   ProductController.getProductByCategory
 );
 router.delete("/products/:id", restrict, ProductController.deleteProduct);
+
+// OCR NUTRITION FACTS
+router.post(
+  "/ocr/extract-nutrition",
+  restrict,
+  image.single("nutrition_image"),
+  OCRController.extractNutrition
+);
+router.post(
+  "/ocr/process-nutrition",
+  restrict,
+  image.single("nutrition_image"),
+  OCRController.processNutritionImage
+);
+router.post(
+  "/ocr/predict-nutriscore",
+  restrict,
+  OCRController.predictFromNutrition
+);
 
 // INFORMATION
 router.post(
