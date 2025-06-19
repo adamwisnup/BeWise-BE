@@ -8,7 +8,7 @@ const openai = new OpenAI({
 module.exports = {
   openai,
   
-  // Function untuk OCR nutrition facts
+  // Function untuk OCR nutrition facts dengan insight
   extractNutritionFacts: async (imageBase64) => {
     try {
       const response = await openai.chat.completions.create({
@@ -19,7 +19,7 @@ module.exports = {
             content: [
               {
                 type: "text",
-                text: `Please extract nutrition facts from this image and return ONLY a JSON object with the following structure:
+                text: `Please extract nutrition facts from this image and provide nutritional insight. Return ONLY a JSON object with the following structure:
                 {
                   "energy": number (in kcal per 100g),
                   "saturated_fat": number (in grams per 100g),
@@ -27,13 +27,23 @@ module.exports = {
                   "sodium": number (in grams per 100g),
                   "protein": number (in grams per 100g),
                   "fiber": number (in grams per 100g),
-                  "fruit_vegetable": number (percentage, usually 0 unless specified)
+                  "fruit_vegetable": number (percentage, usually 0 unless specified),
+                  "insight": "string (detailed nutritional analysis and recommendation in Indonesian)"
                 }
+                
+                For the insight field, provide a comprehensive analysis in Indonesian including:
+                - Analisis kandungan nutrisi (tinggi/rendah kalori, lemak, gula, sodium, dll)
+                - Apakah produk ini sehat atau tidak
+                - Rekomendasi konsumsi (boleh dimakan sering/sesekali/dihindari)
+                - Tips untuk pola makan sehat
+                - Peringatan khusus jika ada (untuk diabetes, hipertensi, dll)
                 
                 Important notes:
                 - Convert all values to per 100g serving
                 - Convert sodium from mg to grams (divide by 1000)
                 - If a value is not found, use 0
+                - Make insight detailed but concise (2-3 sentences)
+                - Use Indonesian language for insight
                 - Return only the JSON object, no additional text`
               },
               {
@@ -45,7 +55,7 @@ module.exports = {
             ]
           }
         ],
-        max_tokens: 500
+        max_tokens: 800 // Increase tokens for insight
       });
 
       const content = response.choices[0].message.content;
@@ -61,6 +71,12 @@ module.exports = {
         }
         
         const nutritionFacts = JSON.parse(cleanContent);
+        
+        // Validate that insight exists
+        if (!nutritionFacts.insight) {
+          nutritionFacts.insight = "Tidak dapat menganalisis insight nutrisi dari gambar ini.";
+        }
+        
         return nutritionFacts;
       } catch (parseError) {
         console.error("OpenAI Response:", content);

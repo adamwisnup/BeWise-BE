@@ -8,13 +8,19 @@ class OCRService {
       // Convert buffer to base64
       const imageBase64 = imageBuffer.toString('base64');
       
-      // Extract nutrition facts using OpenAI
-      const nutritionFacts = await extractNutritionFacts(imageBase64);
+      // Extract nutrition facts using OpenAI (now includes insight)
+      const nutritionData = await extractNutritionFacts(imageBase64);
       
-      // Validate extracted data
+      // Separate nutrition facts from insight
+      const { insight, ...nutritionFacts } = nutritionData;
+      
+      // Validate extracted data (without insight)
       this.validateNutritionFacts(nutritionFacts);
       
-      return nutritionFacts;
+      return {
+        nutritionFacts,
+        insight
+      };
     } catch (error) {
       throw new Error(`Gagal mengekstrak informasi nutrisi: ${error.message}`);
     }
@@ -102,14 +108,16 @@ class OCRService {
   // Complete OCR + Prediction pipeline
   async processNutritionImage(imageBuffer, productType = 'food') {
     try {
-      // Step 1: Extract nutrition facts from image
-      const nutritionFacts = await this.extractNutritionFromImage(imageBuffer, productType);
+      // Step 1: Extract nutrition facts from image (with insight)
+      const extractResult = await this.extractNutritionFromImage(imageBuffer, productType);
+      const { nutritionFacts, insight } = extractResult;
       
       // Step 2: Predict nutri-score
       const prediction = await this.predictNutriScore(nutritionFacts, productType);
       
       return {
         extractedNutrition: nutritionFacts,
+        insight: insight, // Add insight to response
         prediction: {
           nutri_score: prediction.nutri_score,
           label_id: prediction.label_id,
@@ -119,6 +127,75 @@ class OCRService {
       };
     } catch (error) {
       throw new Error(`Gagal memproses gambar nutrisi: ${error.message}`);
+    }
+  }
+
+  // Generate insight manually from nutrition facts (fallback function)
+  generateNutritionInsight(nutritionFacts, grade = null) {
+    try {
+      const { energy, saturated_fat, sugar, sodium, protein, fiber } = nutritionFacts;
+      
+      let insights = [];
+      
+      // Analisis kalori
+      if (energy > 400) {
+        insights.push("Tinggi kalori");
+      } else if (energy < 100) {
+        insights.push("Rendah kalori");
+      } else {
+        insights.push("Kalori sedang");
+      }
+      
+      // Analisis lemak jenuh
+      if (saturated_fat > 5) {
+        insights.push("tinggi lemak jenuh");
+      } else if (saturated_fat < 1) {
+        insights.push("rendah lemak jenuh");
+      }
+      
+      // Analisis gula
+      if (sugar > 15) {
+        insights.push("tinggi gula");
+      } else if (sugar < 5) {
+        insights.push("rendah gula");
+      }
+      
+      // Analisis sodium
+      if (sodium > 1) {
+        insights.push("tinggi sodium");
+      } else if (sodium < 0.3) {
+        insights.push("rendah sodium");
+      }
+      
+      // Analisis protein
+      if (protein > 10) {
+        insights.push("tinggi protein");
+      } else if (protein < 3) {
+        insights.push("rendah protein");
+      }
+      
+      // Analisis serat
+      if (fiber > 6) {
+        insights.push("tinggi serat");
+      } else if (fiber < 2) {
+        insights.push("rendah serat");
+      }
+      
+      // Rekomendasi berdasarkan grade
+      let recommendation = "";
+      if (grade === 'A' || grade === 'B') {
+        recommendation = "Produk ini relatif sehat dan dapat dikonsumsi secara teratur.";
+      } else if (grade === 'C') {
+        recommendation = "Produk ini dapat dikonsumsi sesekali dengan moderasi.";
+      } else if (grade === 'D' || grade === 'E') {
+        recommendation = "Produk ini sebaiknya dibatasi konsumsinya atau dihindari.";
+      }
+      
+      const insightText = `Produk ini ${insights.join(', ')}. ${recommendation}`;
+      
+      return insightText;
+    } catch (error) {
+      return "Tidak dapat menganalisis insight nutrisi untuk produk ini.";
     }
   }
 

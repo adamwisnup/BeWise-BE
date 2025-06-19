@@ -24,7 +24,8 @@ class OCRController {
         });
       }
 
-      const nutritionFacts = await OCRService.extractNutritionFromImage(file.buffer, type);
+      const extractResult = await OCRService.extractNutritionFromImage(file.buffer, type);
+      const { nutritionFacts, insight } = extractResult;
       const formattedNutrition = OCRService.formatNutritionDisplay(nutritionFacts);
 
       return res.status(200).json({
@@ -32,7 +33,8 @@ class OCRController {
         message: "Berhasil mengekstrak informasi nutrisi",
         data: {
           rawNutrition: nutritionFacts,
-          formattedNutrition: formattedNutrition
+          formattedNutrition: formattedNutrition,
+          insight: insight // Add insight to response
         },
       });
     } catch (error) {
@@ -79,6 +81,7 @@ class OCRController {
             raw: result.extractedNutrition,
             formatted: formattedNutrition
           },
+          insight: result.insight, // Add insight to response
           prediction: result.prediction,
         },
       });
@@ -118,12 +121,16 @@ class OCRController {
       OCRService.validateNutritionFacts(nutritionFacts);
 
       const prediction = await OCRService.predictNutriScore(nutritionFacts, type);
+      
+      // Generate insight manually for manual input (since no OCR)
+      const insight = OCRService.generateNutritionInsight(nutritionFacts, prediction.grade);
 
       return res.status(200).json({
         status: true,
         message: "Berhasil memprediksi nutri-score",
         data: {
           nutritionFacts,
+          insight: insight, // Add generated insight
           prediction: {
             nutri_score: prediction.nutri_score,
             label_id: prediction.label_id,
