@@ -19,8 +19,11 @@ module.exports = {
             content: [
               {
                 type: "text",
-                text: `Please extract nutrition facts from this image and provide nutritional insight. Return ONLY a JSON object with the following structure:
+                text: `Please analyze this image and extract nutrition facts if they exist. Return ONLY a JSON object with the following structure:
+
+                If nutrition facts are found:
                 {
+                  "has_nutrition_facts": true,
                   "energy": number (in kcal per 100g),
                   "saturated_fat": number (in grams per 100g),
                   "sugar": number (in grams per 100g),
@@ -30,8 +33,14 @@ module.exports = {
                   "fruit_vegetable": number (percentage, usually 0 unless specified),
                   "insight": "string (detailed nutritional analysis and recommendation in Indonesian)"
                 }
+
+                If NO nutrition facts are detected:
+                {
+                  "has_nutrition_facts": false,
+                  "message": "No nutrition facts detected in this image"
+                }
                 
-                For the insight field, provide a comprehensive analysis in Indonesian including:
+                For the insight field (when nutrition facts exist), provide a comprehensive analysis in Indonesian including:
                 - Analisis kandungan nutrisi (tinggi/rendah kalori, lemak, gula, sodium, dll)
                 - Apakah produk ini sehat atau tidak
                 - Rekomendasi konsumsi (boleh dimakan sering/sesekali/dihindari)
@@ -39,9 +48,11 @@ module.exports = {
                 - Peringatan khusus jika ada (untuk diabetes, hipertensi, dll)
                 
                 Important notes:
+                - First determine if there are any nutrition facts visible in the image
+                - If no nutrition facts table/label is visible, return has_nutrition_facts: false
                 - Convert all values to per 100g serving
                 - Convert sodium from mg to grams (divide by 1000)
-                - If a value is not found, use 0
+                - If a nutrition value is not found, use 0
                 - Make insight detailed but concise (2-3 sentences)
                 - Use Indonesian language for insight
                 - Return only the JSON object, no additional text`
@@ -70,7 +81,15 @@ module.exports = {
           cleanContent = cleanContent.replace(/```\n?/, '').replace(/\n?```$/, '');
         }
         
-        const nutritionFacts = JSON.parse(cleanContent);
+        const response = JSON.parse(cleanContent);
+        
+        // Check if nutrition facts were detected
+        if (!response.has_nutrition_facts) {
+          throw new Error("Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.");
+        }
+        
+        // Extract nutrition facts (remove has_nutrition_facts flag)
+        const { has_nutrition_facts, ...nutritionFacts } = response;
         
         // Validate that insight exists
         if (!nutritionFacts.insight) {
@@ -79,6 +98,10 @@ module.exports = {
         
         return nutritionFacts;
       } catch (parseError) {
+        // Check if it's our specific nutrition detection error
+        if (parseError.message === "Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.") {
+          throw parseError; // Re-throw the nutrition detection error
+        }
         console.error("OpenAI Response:", content);
         throw new Error("Failed to parse OpenAI response as JSON");
       }

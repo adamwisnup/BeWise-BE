@@ -22,6 +22,10 @@ class OCRService {
         insight
       };
     } catch (error) {
+      // Check if it's the "no nutrition detected" error and preserve the exact message
+      if (error.message.includes("Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.")) {
+        throw new Error("Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.");
+      }
       throw new Error(`Gagal mengekstrak informasi nutrisi: ${error.message}`);
     }
   }
@@ -126,6 +130,10 @@ class OCRService {
         success: true
       };
     } catch (error) {
+      // Check if it's the "no nutrition detected" error and preserve the exact message
+      if (error.message.includes("Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.")) {
+        throw new Error("Tidak ada informasi nutrisi yang terdeteksi pada gambar ini.");
+      }
       throw new Error(`Gagal memproses gambar nutrisi: ${error.message}`);
     }
   }
